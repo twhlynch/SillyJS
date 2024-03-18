@@ -338,12 +338,12 @@ function drawUI() {
     ctx.fillText("[1] Place Turret ($50)", 10, 110);
     ctx.fillText("[2] Place Shotgun Turret ($100)", 10, 125);
     ctx.fillText("[3] Place Cannon Turret ($150)", 10, 140);
-    ctx.fillText("[4] Place Spam Turret ($500)", 10, 140);
-    ctx.fillText("[Space] Fire Bullet ($1)", 10, 155);
-    ctx.fillText("[+/=] Spawn Enemy ($20)", 10, 170);
+    ctx.fillText("[4] Place Spam Turret ($500)", 10, 155);
+    ctx.fillText("[Space] Fire Bullet ($1)", 10, 170);
+    ctx.fillText("[+/=] Spawn Enemy ($20)", 10, 185);
 
-    ctx.fillText("Kill = +$10", 10, 200);
-    ctx.fillText("Bigger enemy, bigger reward", 10, 215);
+    ctx.fillText("Kill = +$10", 10, 215);
+    ctx.fillText("Bigger enemy, bigger reward", 10, 230);
 }
 
 function render() {
