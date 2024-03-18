@@ -157,6 +157,14 @@ class CannonTurret extends Turret {
         this.type = "cannon";
     }
 }
+class SpamTurret extends Turret {
+    constructor() {
+        super();
+        this.fireRate = 0.01; // 10 per second
+        this.type = "spam";
+    }
+
+}
 
 function createNewEnemy() {
     let enemy = new Enemy();
@@ -267,6 +275,15 @@ document.addEventListener('keydown', function(event) {
             enemies.push(enemy);
             currency -= 20;
         }
+    } else if (event.key == '2') {
+        if (currency >= 100) {
+            let turret = new ShotgunTurret();
+            turret.x = player.x + player.sx/2;
+            turret.y = player.y + player.sy/2;
+
+            turrets.push(turret);
+            currency -= 100;
+        }
     } else if (event.key == '1') {
         if (currency >= 50) {
             let turret = new Turret();
@@ -285,14 +302,14 @@ document.addEventListener('keydown', function(event) {
             turrets.push(turret);
             currency -= 150;
         }
-    } else if (event.key == '2') {
-        if (currency >= 100) {
-            let turret = new ShotgunTurret();
+    } else if (event.key == '4') {
+        if (currency >= 500) {
+            let turret = new SpamTurret();
             turret.x = player.x + player.sx/2;
             turret.y = player.y + player.sy/2;
 
             turrets.push(turret);
-            currency -= 100;
+            currency -= 500;
         }
     } 
 });
@@ -321,6 +338,7 @@ function drawUI() {
     ctx.fillText("[1] Place Turret ($50)", 10, 110);
     ctx.fillText("[2] Place Shotgun Turret ($100)", 10, 125);
     ctx.fillText("[3] Place Cannon Turret ($150)", 10, 140);
+    ctx.fillText("[4] Place Spam Turret ($500)", 10, 140);
     ctx.fillText("[Space] Fire Bullet ($1)", 10, 155);
     ctx.fillText("[+/=] Spawn Enemy ($20)", 10, 170);
 
