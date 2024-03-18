@@ -89,8 +89,8 @@ class Enemy extends Entity {
 class Boss extends Enemy {
     constructor() {
         super();
-        this.health = 5000;
-        this.maxHealth = 5000;
+        this.health = 10000;
+        this.maxHealth = 10000;
         this.reward = 1000;
         this.sx = 150;
         this.sy = 200;
@@ -166,91 +166,125 @@ class SpamTurret extends Turret {
 
 }
 
-function createNewEnemy() {
-    let enemy = new Enemy();
-
-    for (let index = 0; index < 5; index++) {
-        if (Math.random() > 0.8) {
-            enemy.speed = 3;
-            enemy.health = Math.min(1000, enemy.health * 2);
-            enemy.maxHealth = Math.min(1000, enemy.maxHealth * 2);
-            enemy.sx = Math.min(100, enemy.sx * 2);
-            enemy.sy = Math.min(100, enemy.sy * 2);
-            enemy.reward *= 2;
-        } else {
-            break;
-        }
-    }
-
-    if (Math.random() > 0.995) {
-        enemy = new Boss();
-    }
-
-    let choice = Math.floor(Math.random() * 4);
-    if (choice == 0) {
-        enemy.x = Math.random() * canvas.width;
-        enemy.y = canvas.height + enemy.sy * 2;
-    } else if (choice == 1) {
-        enemy.x = Math.random() * canvas.width;
-        enemy.y = -enemy.sy * 2;
-    } else if (choice == 2) {
-        enemy.x = canvas.width + enemy.sx * 2;
-        enemy.y = Math.random() * canvas.height;
-    } else if (choice == 3) {
-        enemy.x = -enemy.sx * 2;
-        enemy.y = Math.random() * canvas.height;
-    }
-
-    return enemy;
-}
 
 const canvas = document.getElementById('renderer');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 const ctx = canvas.getContext('2d');
+let viewport = {"x": 0, "y": 0};
 
-const player = new Player();
+function createNewEnemy() {
+    let enemy = new Enemy();
+    let rate = Math.round(((Math.abs(viewport.x) / canvas.width) + (Math.abs(viewport.y) / canvas.height)) / 2) + 1;
+
+    for (let index = 0; index < 5; index++) {
+        if (Math.random() > 0.8) {
+            enemy.speed = 3 + rate/10;
+            enemy.health = Math.round(Math.min(1000, enemy.health * 2) * (rate+1));
+            enemy.maxHealth = Math.round(Math.min(1000, enemy.maxHealth * 2) * (rate+1));
+            enemy.sx = Math.min(100, enemy.sx * 2);
+            enemy.sy = Math.min(100, enemy.sy * 2);
+            enemy.reward *= 2 + Math.round(rate*30);
+        } else {
+            break;
+        }
+    }
+
+    if (Math.random() > 0.995 - rate / 100) {
+        enemy = new Boss();
+        enemy.health *= rate;
+        enemy.maxHealth *= rate;
+        enemy.reward *= Math.max(1, rate / 2);
+    }
+
+    let choice = Math.floor(Math.random() * 4);
+    if (choice == 0) {
+        enemy.x = Math.random() * canvas.width + viewport.x;
+        enemy.y = canvas.height + viewport.y + enemy.sy * 2;
+    } else if (choice == 1) {
+        enemy.x = Math.random() * canvas.width + viewport.x;
+        enemy.y = -enemy.sy * 2;
+    } else if (choice == 2) {
+        enemy.x = canvas.width + viewport.x + enemy.sx * 2;
+        enemy.y = Math.random() * canvas.height + viewport.y;
+    } else if (choice == 3) {
+        enemy.x = -enemy.sx * 2;
+        enemy.y = Math.random() * canvas.height + viewport.y;
+    }
+
+    return enemy;
+}
+
+let player = new Player();
 player.x = canvas.width / 2;
 player.y = canvas.height / 2;
 player.sx = 10;
 player.sy = 20;
 player.speed = 5;
 
-const enemies = [];
+let enemies = [];
 for (let i = 0; i < 5; i++) {
     let enemy = createNewEnemy();
     enemies.push(enemy);
 }
 
-const healthPacks = [];
+let healthPacks = [];
 for (let i = 0; i < 5; i++) {
     let healthPack = new Entity();
-    healthPack.x = Math.random() * canvas.width;
-    healthPack.y = Math.random() * canvas.height;
+    healthPack.x = Math.random() * canvas.width + viewport.x;
+    healthPack.y = Math.random() * canvas.height + viewport.y;
     healthPack.sx = 15;
     healthPack.sy = 15;
     healthPacks.push(healthPack);
 }
 
-const projectiles = [];
-const turrets = [];
+let projectiles = [];
+let turrets = [];
 
-let movingTo = {"isMoving": false, "x": player.x, "y":player.y};
-document.addEventListener('mousedown', function(event) {
-    movingTo.isMoving = true;
-    movingTo.x = event.clientX;
-    movingTo.y = event.clientY;
+let mousePosition = {"x": 0, "y": 0};
+document.addEventListener("mousemove",  (e) => {
+    mousePosition.x = e.clientX + viewport.x;
+    mousePosition.y = e.clientY + viewport.y;
 });
-
-document.addEventListener('mousemove', function(event) {
-    movingTo.x = event.clientX;
-    movingTo.y = event.clientY;
+let playerVelocity = {"left": 0, "up":0, "right":0, "down":0};
+// moving keys
+document.addEventListener('keydown', function(event) {
+    if (event.key == 'ArrowLeft') {
+        playerVelocity.left = player.speed;
+    } else if (event.key == 'ArrowRight') {
+        playerVelocity.right = player.speed;
+    } else if (event.key == 'ArrowUp') {
+        playerVelocity.up = player.speed;
+    } else if (event.key == 'ArrowDown') {
+        playerVelocity.down = player.speed;
+    } else if (event.key == 'w') {
+        playerVelocity.up = player.speed;
+    } else if (event.key == 'a') {
+        playerVelocity.left = player.speed;
+    } else if (event.key =='s') {
+        playerVelocity.down = player.speed;
+    } else if (event.key == 'd') {
+        playerVelocity.right = player.speed;
+    }
 });
-
-document.addEventListener('mouseup', function(event) {
-    movingTo.isMoving = false;
-    movingTo.x = player.x;
-    movingTo.y = player.y;
+document.addEventListener('keyup', function(event) {
+    if (event.key == 'ArrowLeft') {
+        playerVelocity.left = 0;
+    } else if (event.key == 'ArrowRight') {
+        playerVelocity.right = 0;
+    } else if (event.key == 'ArrowUp') {
+        playerVelocity.up = 0;
+    } else if (event.key == 'ArrowDown') {
+        playerVelocity.down = 0;
+    } else if (event.key == 'w') {
+        playerVelocity.up = 0;
+    } else if (event.key == 'a') {
+        playerVelocity.left = 0;
+    } else if (event.key =='s') {
+        playerVelocity.down = 0;
+    } else if (event.key == 'd') {
+        playerVelocity.right = 0;
+    }
 });
 
 document.addEventListener('keydown', function(event) {
@@ -262,7 +296,7 @@ document.addEventListener('keydown', function(event) {
             projectile.sx = 2;
             projectile.sy = 2;
             
-            let angle = Math.atan2(movingTo.y - player.y, movingTo.x - player.x);
+            let angle = Math.atan2(mousePosition.y - player.y, mousePosition.x - player.x);
             projectile.vx = Math.cos(angle);
             projectile.vy = Math.sin(angle);
     
@@ -275,11 +309,99 @@ document.addEventListener('keydown', function(event) {
             enemies.push(enemy);
             currency -= 20;
         }
+    } else if (event.key == ']') {
+        localStorage.setItem('data', JSON.stringify({
+            "enemies": enemies,
+            "healthPacks": healthPacks,
+            "projectiles": projectiles,
+            "turrets": turrets,
+            "player": player,
+            "viewport": viewport,
+            "mousePosition": mousePosition,
+            "playerVelocity": playerVelocity
+        }));
+    } else if (event.key == '[') {
+        let data = localStorage.getItem('data');
+        data = JSON.parse(data);
+        enemies = [];
+        for (let i = 0; i < data.enemies.length; i++) {
+            let newEnemy = new Enemy();
+            newEnemy.x = data.enemies[i].x;
+            newEnemy.y = data.enemies[i].y;
+            newEnemy.health = data.enemies[i].health;
+            newEnemy.maxHealth = data.enemies[i].maxHealth;
+            newEnemy.reward = data.enemies[i].reward;
+            newEnemy.speed = data.enemies[i].speed;
+            newEnemy.sx = data.enemies[i].sx;
+            newEnemy.sy = data.enemies[i].sy;
+            enemies.push(newEnemy);
+        }
+        healthPacks = [];
+        for (let i = 0; i < data.healthPacks.length; i++) {
+            let newHealthPack = new Entity();
+            newHealthPack.x = data.healthPacks[i].x;
+            newHealthPack.y = data.healthPacks[i].y;
+            newHealthPack.sx = data.healthPacks[i].sx;
+            newHealthPack.sy = data.healthPacks[i].sy;
+            healthPacks.push(newHealthPack);
+        }
+        projectiles = [];
+        for (let i = 0; i < data.projectiles.length; i++) {
+            let newProjectile = new Projectile();
+            newProjectile.x = data.projectiles[i].x;
+            newProjectile.y = data.projectiles[i].y;
+            newProjectile.sx = data.projectiles[i].sx;
+            newProjectile.sy = data.projectiles[i].sy;
+            newProjectile.vx = data.projectiles[i].vx;
+            newProjectile.vy = data.projectiles[i].vy;
+            newProjectile.health = data.projectiles[i].health;
+            newProjectile.maxHealth = data.projectiles[i].maxHealth;
+            newProjectile.speed = data.projectiles[i].speed;
+            projectiles.push(newProjectile);
+        }
+        turrets = [];
+        for (let i = 0; i < data.turrets.length; i++) {
+            let newTurret;
+            if (data.turrets[i].type == "turret") {
+                newTurret = new Turret();
+            } else if (data.turrets[i].type == "shotgun") {
+                newTurret = new ShotgunTurret();
+            } else if (data.turrets[i].type == "cannon") {
+                newTurret = new CannonTurret();
+            } else if (data.turrets[i].type == "spam") {
+                newTurret = new SpamTurret();
+            }
+            newTurret.x = data.turrets[i].x;
+            newTurret.y = data.turrets[i].y;
+            newTurret.health = data.turrets[i].health;
+            newTurret.maxHealth = data.turrets[i].maxHealth;
+            newTurret.firePower = data.turrets[i].firePower;
+            newTurret.fireRate = data.turrets[i].fireRate;
+            newTurret.lastFire = data.turrets[i].lastFire;
+            newTurret.projectileCount = data.turrets[i].projectileCount;
+            turrets.push(newTurret);
+        }
+
+        viewport.x = data.viewport.x;
+        viewport.y = data.viewport.y;
+        viewport.width = data.viewport.width;
+        viewport.height = data.viewport.height;
+        mousePosition.x = data.mousePosition.x;
+        mousePosition.y = data.mousePosition.y;
+        playerVelocity = data.playerVelocity;
+        player.x = data.player.x;
+        player.y = data.player.y;
+        player.sx = data.player.sx;
+        player.sy = data.player.sy;
+        player.health = data.player.health;
+        player.maxHealth = data.player.maxHealth;
+        player.speed = data.player.speed;
+
     } else if (event.key == '2') {
         if (currency >= 100) {
             let turret = new ShotgunTurret();
-            turret.x = player.x + player.sx/2;
-            turret.y = player.y + player.sy/2;
+            turret.x = player.x + player.sx/2 - turret.sx/2;
+            turret.y = player.y + player.sy/2 - turret.sy/2;
 
             turrets.push(turret);
             currency -= 100;
@@ -287,8 +409,8 @@ document.addEventListener('keydown', function(event) {
     } else if (event.key == '1') {
         if (currency >= 50) {
             let turret = new Turret();
-            turret.x = player.x + player.sx/2;
-            turret.y = player.y + player.sy/2;
+            turret.x = player.x + player.sx/2 - turret.sx/2;
+            turret.y = player.y + player.sy/2 - turret.sy/2;
 
             turrets.push(turret);
             currency -= 50;
@@ -296,8 +418,8 @@ document.addEventListener('keydown', function(event) {
     } else if (event.key == '3') {
         if (currency >= 150) {
             let turret = new CannonTurret();
-            turret.x = player.x + player.sx/2;
-            turret.y = player.y + player.sy/2;
+            turret.x = player.x + player.sx/2 - turret.sx/2;
+            turret.y = player.y + player.sy/2 - turret.sy/2;
 
             turrets.push(turret);
             currency -= 150;
@@ -305,8 +427,8 @@ document.addEventListener('keydown', function(event) {
     } else if (event.key == '4') {
         if (currency >= 500) {
             let turret = new SpamTurret();
-            turret.x = player.x + player.sx/2;
-            turret.y = player.y + player.sy/2;
+            turret.x = player.x + player.sx/2 - turret.sx/2;
+            turret.y = player.y + player.sy/2 - turret.sy/2;
 
             turrets.push(turret);
             currency -= 500;
@@ -319,6 +441,10 @@ let lastRender = performance.now();
 let frameCount = 0;
 let fps = 0;
 function drawUI() {
+    // ctx.strokeStyle = 'black';
+    // ctx.strokeRect(viewport.x, viewport.y, canvas.width + viewport.x, canvas.height + viewport.y);
+    // ctx.strokeStyle = 'green';
+    // ctx.strokeRect(viewport.x + 20, viewport.y + 20, canvas.width + viewport.x - 40, canvas.height + viewport.y - 40);
     const now = performance.now();
     const delta = now - lastRender;
     frameCount++;
@@ -353,8 +479,18 @@ function render() {
     }
 
     // move player
-    if (movingTo.isMoving) {
-        player.moveTowards(movingTo.x, movingTo.y);
+    player.x += playerVelocity.right - playerVelocity.left;
+    player.y += playerVelocity.down - playerVelocity.up;
+
+    if (player.x < viewport.x + 20) {
+        viewport.x = player.x - 21;
+    } else if (player.x > canvas.width + viewport.x - 40) {
+        viewport.x = player.x + 41 - canvas.width;
+    }
+    if (player.y < viewport.y + 20) {
+        viewport.y = player.y - 21;
+    } else if (player.y > canvas.height + viewport.y - 40) {
+        viewport.y = player.y + 41 - canvas.height;
     }
 
     // move projectiles
@@ -368,27 +504,31 @@ function render() {
     for (let i = 0; i < turrets.length; i++) {
         let turret = turrets[i];
         let closestEnemy;
-        for (let j = 0; j < enemies.length; j++) {
-            closestEnemy = enemies[j];
-            let distance = Math.sqrt(Math.pow(closestEnemy.x - turret.x, 2) + Math.pow(closestEnemy.y - turret.y, 2));
-            for (let k = 0; k < enemies.length; k++) {
-                let enemy = enemies[k];
-                let newDistance = Math.sqrt(Math.pow(enemy.x - turret.x, 2) + Math.pow(enemy.y - turret.y, 2));
-                if (newDistance < distance) {
-                    closestEnemy = enemy;
-                    distance = newDistance;
+        // if in viewport
+        if (turret.x > viewport.x - 20 && turret.x < viewport.x + canvas.width + 40 &&
+            turret.y > viewport.y - 20 && turret.y < viewport.y + canvas.height + 40) {
+            for (let j = 0; j < enemies.length; j++) {
+                closestEnemy = enemies[j];
+                let distance = Math.sqrt(Math.pow(closestEnemy.x - turret.x, 2) + Math.pow(closestEnemy.y - turret.y, 2));
+                for (let k = 0; k < enemies.length; k++) {
+                    let enemy = enemies[k];
+                    let newDistance = Math.sqrt(Math.pow(enemy.x - turret.x, 2) + Math.pow(enemy.y - turret.y, 2));
+                    if (newDistance < distance) {
+                        closestEnemy = enemy;
+                        distance = newDistance;
+                    }
                 }
             }
-        }
-        if (closestEnemy) {
-            // check turret fireRate and increment LastFire
-            let now = performance.now();
-            if (now - turret.lastFire >= turret.fireRate * 1000) {
-                let projectileList = turret.shootAt(closestEnemy.x, closestEnemy.y);
-                for (let j = 0; j < projectileList.length; j++) {
-                    projectiles.push(projectileList[j]);
+            if (closestEnemy) {
+                // check turret fireRate and increment LastFire
+                let now = performance.now();
+                if (now - turret.lastFire >= turret.fireRate * 1000) {
+                    let projectileList = turret.shootAt(closestEnemy.x, closestEnemy.y);
+                    for (let j = 0; j < projectileList.length; j++) {
+                        projectiles.push(projectileList[j]);
+                    }
+                    turret.lastFire = now;
                 }
-                turret.lastFire = now;
             }
         }
     }
@@ -414,8 +554,8 @@ function render() {
         if (player.isColliding(healthPack)) {
             player.heal(10);
             currency += 5;
-            healthPack.x = Math.random() * canvas.width;
-            healthPack.y = Math.random() * canvas.height;
+            healthPack.x = Math.random() * canvas.width + viewport.x;
+            healthPack.y = Math.random() * canvas.height + viewport.y;
         }
     }
 
@@ -424,8 +564,8 @@ function render() {
         for (let j = 0; j < enemies.length; j++) {
             let enemy = enemies[j];
             if (projectile.isColliding(enemy)) {
-                enemy.damage(projectile.maxHealth);
                 projectile.damage(enemy.health);
+                enemy.damage(projectile.maxHealth);
             }
         }
     }
@@ -435,8 +575,8 @@ function render() {
         player.x = canvas.width / 2;
         player.y = canvas.height / 2;
         player.health = player.maxHealth;
-        movingTo.isMoving = false;
         currency = 0;
+        viewport = {"x": 0, "y": 0};
     }
 
     for (let i = 0; i < enemies.length; i++) {
@@ -447,6 +587,24 @@ function render() {
             let newEnemy = createNewEnemy();
             enemies.push(newEnemy);
         }
+        if (enemies[i].x < viewport.x - 20) {
+            let newEnemy = createNewEnemy();
+            enemies[i].x = newEnemy.x;
+            enemies[i].y = newEnemy.y;
+        } else if (enemies[i].x > canvas.width + viewport.x + 40) {
+            let newEnemy = createNewEnemy();
+            enemies[i].x = newEnemy.x;
+            enemies[i].y = newEnemy.y;
+        }
+        if (enemies[i].y < viewport.y - 20) {
+            let newEnemy = createNewEnemy();
+            enemies[i].x = newEnemy.x;
+            enemies[i].y = newEnemy.y;
+        } else if (enemies[i].y > canvas.height + viewport.y + 40) {
+            let newEnemy = createNewEnemy();
+            enemies[i].x = newEnemy.x;
+            enemies[i].y = newEnemy.y;
+        }
     }
 
     for (let i = 0; i < projectiles.length; i++) {
@@ -454,9 +612,18 @@ function render() {
         if (projectile.isDestroyed()) {
             projectiles.splice(i, 1);
         }
-        if (projectile.x < 0 - projectile.sx || projectile.x > canvas.width || 
-            projectile.y < 0 - projectile.sy || projectile.y > canvas.height) {
+        if (projectile.x < viewport.x - projectile.sx || projectile.x > viewport.x + canvas.width || 
+            projectile.y < viewport.y - projectile.sy || projectile.y > viewport.y + canvas.height) {
             projectiles.splice(i, 1);
+        }
+    }
+
+    for (let i = 0; i < healthPacks.length; i++) {
+        let healthPack = healthPacks[i];
+        if (healthPack.x < viewport.x - healthPack.sx || healthPack.x > viewport.x + canvas.width || 
+            healthPack.y < viewport.y - healthPack.sy || healthPack.y > viewport.y + canvas.height) {
+            healthPack.x = Math.random() * canvas.width + viewport.x;
+            healthPack.y = Math.random() * canvas.height + viewport.y;
         }
     }
 
@@ -471,54 +638,54 @@ function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.fillStyle = 'blue';
-    ctx.fillRect(player.x, player.y, player.sx, player.sy);
+    ctx.fillRect(player.x - viewport.x, player.y - viewport.y, player.sx, player.sy);
 
     ctx.fillStyle = 'green';
     for (let i = 0; i < healthPacks.length; i++) {
-        ctx.fillRect(healthPacks[i].x, healthPacks[i].y, healthPacks[i].sx, healthPacks[i].sy);
+        ctx.fillRect(healthPacks[i].x - viewport.x, healthPacks[i].y - viewport.y, healthPacks[i].sx, healthPacks[i].sy);
     }
 
     ctx.fillStyle = 'red';
     for (let i = 0; i < enemies.length; i++) {
-        ctx.fillRect(enemies[i].x, enemies[i].y, enemies[i].sx, enemies[i].sy);
+        ctx.fillRect(enemies[i].x - viewport.x, enemies[i].y - viewport.y, enemies[i].sx, enemies[i].sy);
     }
 
     ctx.fillStyle = 'black';
     for (let i = 0; i < turrets.length; i++) {
         let turret = turrets[i];
-        ctx.fillRect(turret.x, turret.y, turret.sx, turret.sy);
+        ctx.fillRect(turret.x - viewport.x, turret.y - viewport.y, turret.sx, turret.sy);
     }
 
     // draw projectiles
     for (let i = 0; i < projectiles.length; i++) {
         let projectile = projectiles[i];
         ctx.fillStyle ='red';
-        ctx.fillRect(projectile.x, projectile.y, projectile.sx, projectile.sy);
+        ctx.fillRect(projectile.x - viewport.x, projectile.y - viewport.y, projectile.sx, projectile.sy);
     }
 
     // draw health bars
     for (let i = 0; i < enemies.length; i++) {
         let enemy = enemies[i];
         ctx.fillStyle = 'red';
-        ctx.fillRect(enemy.x, enemy.y - 10, enemy.sx, 5);
+        ctx.fillRect(enemy.x - viewport.x, enemy.y - viewport.y - 10, enemy.sx, 5);
         ctx.fillStyle = 'green';
-        ctx.fillRect(enemy.x, enemy.y - 10, enemy.health / enemy.maxHealth * enemy.sx, 5);
+        ctx.fillRect(enemy.x - viewport.x, enemy.y - viewport.y - 10, enemy.health / enemy.maxHealth * enemy.sx, 5);
         ctx.font = '8px Arial';
         ctx.fillStyle = 'black';
-        ctx.fillText(enemy.health, enemy.x, enemy.y - 12);
+        ctx.fillText(enemy.health, enemy.x - viewport.x, enemy.y - viewport.y - 12);
     }
     
     ctx.fillStyle = 'red';
-    ctx.fillRect(player.x, player.y - 10, player.sx, 5);
+    ctx.fillRect(player.x - viewport.x, player.y - viewport.y - 10, player.sx, 5);
     ctx.fillStyle = 'green';
-    ctx.fillRect(player.x, player.y - 10, player.health / player.maxHealth * player.sx, 5);
+    ctx.fillRect(player.x - viewport.x, player.y - viewport.y - 10, player.health / player.maxHealth * player.sx, 5);
 
     for (let i = 0; i < turrets.length; i++) {
         let turret = turrets[i];
         ctx.fillStyle ='red';
-        ctx.fillRect(turret.x, turret.y - 10, turret.sx, 5);
+        ctx.fillRect(turret.x - viewport.x, turret.y - viewport.y - 10, turret.sx, 5);
         ctx.fillStyle = 'green';
-        ctx.fillRect(turret.x, turret.y - 10, turret.health / turret.maxHealth * turret.sx, 5);
+        ctx.fillRect(turret.x - viewport.x, turret.y - viewport.y - 10, turret.health / turret.maxHealth * turret.sx, 5);
     }
 
     // main health bar
