@@ -131,6 +131,10 @@ class Turret extends Entity {
             projectile.y = this.y + this.sy/2;
             projectile.sx = this.firePower/5;
             projectile.sy = this.firePower/5;
+            if (this.type == "railgun") {
+                projectile.sx = 10;
+                projectile.sy = 10;
+            }
             
             let angle = Math.atan2(y - this.y, x - this.x) + i / Math.PI / 4;
             projectile.vx = Math.cos(angle);
@@ -147,6 +151,32 @@ class ShotgunTurret extends Turret {
         this.fireRate = 1; // 1 per second
         this.projectileCount = 3;
         this.type = "shotgun";
+    }
+}
+class SpiderTurret extends Turret {
+    constructor() {
+        super();
+        this.fireRate = 1; // 1 per second
+        this.projectileCount = 79;
+        this.type = "spider";
+    }
+}
+class PulseTurret extends Turret {
+    constructor() {
+        super();
+        this.fireRate = 5; // 1 per second
+        this.firePower = 5;
+        this.projectileCount = 2000;
+        this.type = "pulse";
+    }
+}
+class RailgunTurret extends Turret {
+    constructor() {
+        super();
+        this.fireRate = 5; // 1 per second
+        this.firePower = 1000;
+        this.projectileCount = 1;
+        this.type = "railgun";
     }
 }
 class CannonTurret extends Turret {
@@ -370,6 +400,12 @@ document.addEventListener('keydown', function(event) {
                 newTurret = new CannonTurret();
             } else if (data.turrets[i].type == "spam") {
                 newTurret = new SpamTurret();
+            } else if (data.turrets[i].type == "spider") {
+                newTurret = new SpiderTurret();
+            } else if (data.turrets[i].type == "pulse") {
+                newTurret = new PulseTurret();
+            } else if (data.turrets[i].type == "railgun") {
+                newTurret = new RailgunTurret();
             }
             newTurret.x = data.turrets[i].x;
             newTurret.y = data.turrets[i].y;
@@ -433,7 +469,35 @@ document.addEventListener('keydown', function(event) {
             turrets.push(turret);
             currency -= 500;
         }
-    } 
+    } else if (event.key == '5') {
+        if (currency >= 800) {
+            let turret = new SpiderTurret();
+            turret.x = player.x + player.sx/2 - turret.sx/2;
+            turret.y = player.y + player.sy/2 - turret.sy/2;
+
+            turrets.push(turret);
+            currency -= 800;
+        }
+    } else if (event.key == '6') {
+        if (currency >= 1500) {
+            let turret = new PulseTurret();
+            turret.x = player.x + player.sx/2 - turret.sx/2;
+            turret.y = player.y + player.sy/2 - turret.sy/2;
+
+            turrets.push(turret);
+            currency -= 1500;
+        }
+    } else if (event.key == '7') {
+        if (currency >= 1500) {
+            let turret = new RailgunTurret();
+            turret.x = player.x + player.sx/2 - turret.sx/2;
+            turret.y = player.y + player.sy/2 - turret.sy/2;
+
+            turrets.push(turret);
+            currency -= 1500;
+        }
+    
+    }
 });
 
 let currency = 10;
@@ -460,16 +524,16 @@ function drawUI() {
     ctx.fillText(`Enemies: ${enemies.length}`, 10, 35);
     ctx.fillText(`Turrets: ${turrets.length}`, 10, 50);
     ctx.fillText(`Projectiles: ${projectiles.length}`, 10, 65);
-
-    ctx.fillText("[1] Place Turret ($50)", 10, 110);
-    ctx.fillText("[2] Place Shotgun Turret ($100)", 10, 125);
-    ctx.fillText("[3] Place Cannon Turret ($150)", 10, 140);
-    ctx.fillText("[4] Place Spam Turret ($500)", 10, 155);
-    ctx.fillText("[Space] Fire Bullet ($1)", 10, 170);
-    ctx.fillText("[+/=] Spawn Enemy ($20)", 10, 185);
-
-    ctx.fillText("Kill = +$10", 10, 215);
-    ctx.fillText("Bigger enemy, bigger reward", 10, 230);
+    
+    ctx.fillText("[Space] Fire Bullet ($1)", 10, 110);
+    ctx.fillText("[+/=] Spawn Enemy ($20)", 10, 125);
+    ctx.fillText("[1] Place Turret ($50)", 10, 140);
+    ctx.fillText("[2] Place Shotgun Turret ($100)", 10, 155);
+    ctx.fillText("[3] Place Cannon Turret ($150)", 10, 170);
+    ctx.fillText("[4] Place Spam Turret ($500)", 10, 185);
+    ctx.fillText("[5] Place Spider Turret ($800)", 10, 200);
+    ctx.fillText("[6] Place Pulse Turret ($1500)", 10, 215);
+    ctx.fillText("[7] Place Railgun Turret ($1500)", 10, 230);
 }
 
 function render() {
