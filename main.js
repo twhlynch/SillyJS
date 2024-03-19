@@ -166,7 +166,7 @@ class PulseTurret extends Turret {
         this.fireRate = 5; // 1 per 5 seconds
         this.firePower = 5;
         this.projectileSize = 2;
-        this.projectileCount = 2000;
+        this.projectileCount = 1900;
         this.type = "pulse";
     }
 }
