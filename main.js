@@ -508,7 +508,7 @@ function drawUI() {
     // ctx.strokeStyle = 'black';
     // ctx.strokeRect(viewport.x, viewport.y, canvas.width + viewport.x, canvas.height + viewport.y);
     // ctx.strokeStyle = 'green';
-    // ctx.strokeRect(viewport.x + 20, viewport.y + 20, canvas.width + viewport.x - 40, canvas.height + viewport.y - 40);
+    // ctx.strokeRect(viewport.x + 100, viewport.y + 100, canvas.width + viewport.x - 200, canvas.height + viewport.y - 200);
     const now = performance.now();
     const delta = now - lastRender;
     frameCount++;
@@ -546,15 +546,15 @@ function render() {
     player.x += playerVelocity.right - playerVelocity.left;
     player.y += playerVelocity.down - playerVelocity.up;
 
-    if (player.x < viewport.x + 20) {
-        viewport.x = player.x - 21;
-    } else if (player.x > canvas.width + viewport.x - 40) {
-        viewport.x = player.x + 41 - canvas.width;
+    if (player.x < viewport.x + 100) {
+        viewport.x = player.x - 101;
+    } else if (player.x > canvas.width + viewport.x - 200) {
+        viewport.x = player.x + 201 - canvas.width;
     }
-    if (player.y < viewport.y + 20) {
-        viewport.y = player.y - 21;
-    } else if (player.y > canvas.height + viewport.y - 40) {
-        viewport.y = player.y + 41 - canvas.height;
+    if (player.y < viewport.y + 100) {
+        viewport.y = player.y - 101;
+    } else if (player.y > canvas.height + viewport.y - 200) {
+        viewport.y = player.y + 201 - canvas.height;
     }
 
     // move projectiles
