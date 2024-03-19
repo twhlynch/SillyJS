@@ -195,6 +195,74 @@ class SpamTurret extends Turret {
     }
 
 }
+class UIElement extends Object {
+    constructor() {
+        super();
+    }
+}
+class Button extends UIElement {
+    constructor(text) {
+        super();
+        this.sx = 50;
+        this.sy = 50;
+        this.text = text;
+        this.top = "";
+        this.bottom = "";
+    }
+    click() {
+        console.log("Button clicked");
+    }
+    draw() {
+        ctx.fillStyle = "#999999";
+        ctx.fillRect(this.x, this.y, this.sx, this.sy);
+
+        ctx.font = `bold ${this.sx / 2}px sans-serif`;
+        ctx.fillStyle = 'black';
+        ctx.fillText(this.text, this.x + this.sx / 3, this.y + this.sy / 1.5);
+
+        ctx.font = "12px sans-serif";
+        ctx.fillText(this.top, this.x, this.y - 4);
+        ctx.fillText(this.bottom, this.x, this.y + this.sy + 12);
+    }
+}
+class IconButton extends Button {
+    constructor(icon) {
+        super();
+        this.sprite = new Image();
+        this.sprite.src = icon;
+    }
+    draw() {
+        ctx.fillStyle = "#999999";
+        ctx.fillRect(this.x, this.y, this.sx, this.sy);
+        ctx.drawImage(this.sprite, this.x, this.y, this.sx, this.sy);
+    }
+}
+class Icon extends UIElement {
+    constructor(icon) {
+        super();
+        this.sprite = new Image();
+        this.sprite.src = icon;
+    }
+    draw() {
+        ctx.drawImage(this.sprite, this.x, this.y, this.sx, this.sy);
+    }
+}
+class StatBar extends UIElement {
+    constructor(max, current) {
+        super();
+        this.maxValue = max;
+        this.value = current;
+    }
+    draw() {
+        ctx.fillStyle = 'red';
+        ctx.fillRect(this.x, this.y, this.sx, this.sy);
+        ctx.fillStyle = 'green';
+        ctx.fillRect(this.x, this.y, this.value / this.maxValue * this.sx, this.sy);
+        ctx.font = `${this.sy * 1.5}px Arial`;
+        ctx.fillStyle = 'black';
+        ctx.fillText(this.value, this.x, this.y - this.sy/2);
+    }
+}
 
 
 const canvas = document.getElementById('renderer');
@@ -253,13 +321,78 @@ player.sx = 10;
 player.sy = 20;
 player.speed = 5;
 
+let playerHealthBar = new StatBar(player.maxHealth, player.health);
+playerHealthBar.x = 50;
+playerHealthBar.y = canvas.height - 270;
+playerHealthBar.sx = 100;
+playerHealthBar.sy = 10;
+
 let enemies = [];
+let healthPacks = [];
+let projectiles = [];
+let turrets = [];
+
+let mousePosition = {"x": 0, "y": 0};
+
+let playerVelocity = {"left": 0, "up":0, "right":0, "down":0};
+
+let currency = 10;
+let lastRender = performance.now();
+let frameCount = 0;
+let fps = 0;
+
+let currencySprite = new Icon("sprites/currency.png");
+let enemySprite = new Icon("sprites/enemy.png");
+let turretSprite = new Icon("sprites/turret.png");
+currencySprite.x = 50;
+currencySprite.y = canvas.height - 160;
+currencySprite.sx = 30;
+currencySprite.sy = 30;
+enemySprite.x = 50;
+enemySprite.y = canvas.height - 200;
+enemySprite.sx = 30;
+enemySprite.sy = 30;
+turretSprite.x = 50;
+turretSprite.y = canvas.height - 240;
+turretSprite.sx = 30;
+turretSprite.sy = 30;
+
+let menuButtons = [];
+for (i = 0; i < 9; i++) {
+    let menuButton = new Button((i+1).toString());
+    if (i == 7) {
+        menuButton.text = "␣";
+    } else if (i == 8) {
+        menuButton.text = "+";
+    }
+    menuButton.x = 50 + i * 60;
+    menuButton.y = canvas.height - 100;
+    menuButtons.push(menuButton);
+}
+menuButtons[0].top = "Turret";
+menuButtons[1].top = "Shotgun";
+menuButtons[2].top = "Cannon";
+menuButtons[3].top = "Spam";
+menuButtons[4].top = "Spider";
+menuButtons[5].top = "Pulse";
+menuButtons[6].top = "Railgun";
+menuButtons[7].top = "Shoot";
+menuButtons[8].top = "Spawn";
+menuButtons[0].bottom = "$50";
+menuButtons[1].bottom = "$100";
+menuButtons[2].bottom = "$150";
+menuButtons[3].bottom = "$500";
+menuButtons[4].bottom = "$800";
+menuButtons[5].bottom = "$1500";
+menuButtons[6].bottom = "$1500";
+menuButtons[7].bottom = "$1";
+menuButtons[8].bottom = "$20";
+
 for (let i = 0; i < 5; i++) {
     let enemy = createNewEnemy();
     enemies.push(enemy);
 }
 
-let healthPacks = [];
 for (let i = 0; i < 5; i++) {
     let healthPack = new Entity();
     healthPack.x = Math.random() * canvas.width + viewport.x;
@@ -269,15 +402,10 @@ for (let i = 0; i < 5; i++) {
     healthPacks.push(healthPack);
 }
 
-let projectiles = [];
-let turrets = [];
-
-let mousePosition = {"x": 0, "y": 0};
 document.addEventListener("mousemove",  (e) => {
     mousePosition.x = e.clientX + viewport.x;
     mousePosition.y = e.clientY + viewport.y;
 });
-let playerVelocity = {"left": 0, "up":0, "right":0, "down":0};
 // moving keys
 document.addEventListener('keydown', function(event) {
     if (event.key == 'ArrowLeft') {
@@ -501,23 +629,6 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
-let currency = 10;
-let lastRender = performance.now();
-let frameCount = 0;
-let fps = 0;
-
-let sprites = {
-    "currency": "sprites/currency.png",
-    "enemy": "sprites/enemy.png",
-    "turret": "sprites/turret.png"
-};
-let currencySprite = new Image();
-currencySprite.src = sprites.currency;
-let enemySprite = new Image();
-enemySprite.src = sprites.enemy;
-let turretSprite = new Image();
-turretSprite.src = sprites.turret;
-
 function drawUI() {
     // ctx.strokeStyle = 'black';
     // ctx.strokeRect(viewport.x, viewport.y, canvas.width + viewport.x, canvas.height + viewport.y);
@@ -535,70 +646,20 @@ function drawUI() {
     ctx.fillStyle = 'black';
     ctx.fillText(`FPS: ${Math.round(fps)}`, 10, 20);
 
-    // draw boxes across bottom of screen for each turret type
-    ctx.fillStyle = 'gray';
-    ctx.font = '12px sans-serif';
-    // squares
-    ctx.fillRect(50, canvas.height - 100, 50, 50);
-    ctx.fillRect(110, canvas.height - 100, 50, 50);
-    ctx.fillRect(170, canvas.height - 100, 50, 50);
-    ctx.fillRect(230, canvas.height - 100, 50, 50);
-    ctx.fillRect(290, canvas.height - 100, 50, 50);
-    ctx.fillRect(350, canvas.height - 100, 50, 50);
-    ctx.fillRect(410, canvas.height - 100, 50, 50);
-
-    ctx.fillRect(470, canvas.height - 100, 50, 50);
-    ctx.fillRect(530, canvas.height - 100, 50, 50);
-
-    ctx.fillStyle = 'black';
-    // names
-    ctx.fillText("Turret", 50, canvas.height - 105);
-    ctx.fillText("Shotgun", 110, canvas.height - 105);
-    ctx.fillText("Cannon", 170, canvas.height - 105);
-    ctx.fillText("Spam", 230, canvas.height - 105);
-    ctx.fillText("Spider", 290, canvas.height - 105);
-    ctx.fillText("Pulse", 350, canvas.height - 105);
-    ctx.fillText("Railgun", 410, canvas.height - 105);
-
-    ctx.fillText("Shoot", 470, canvas.height - 105);
-    ctx.fillText("Spawn", 530, canvas.height - 105);
-
+    menuButtons.forEach((button) => {
+        button.draw();
+    });
+    currencySprite.draw();
+    enemySprite.draw();
+    turretSprite.draw();
     ctx.font = "bold 20px sans-serif";
-    // keys
-    ctx.fillText("1", 70, canvas.height - 70);
-    ctx.fillText("2", 130, canvas.height - 70);
-    ctx.fillText("3", 190, canvas.height - 70);
-    ctx.fillText("4", 250, canvas.height - 70);
-    ctx.fillText("5", 310, canvas.height - 70);
-    ctx.fillText("6", 370, canvas.height - 70);
-    ctx.fillText("7", 430, canvas.height - 70);
-
-    ctx.fillText("'    '", 480, canvas.height - 68);
-    ctx.fillText("+", 550, canvas.height - 70);
-
-    ctx.font = "12px sans-serif";
-    // prices
-    ctx.fillText("$50", 50, canvas.height - 38);
-    ctx.fillText("$100", 110, canvas.height - 38);
-    ctx.fillText("$150", 170, canvas.height - 38);
-    ctx.fillText("$500", 230, canvas.height - 38);
-    ctx.fillText("$800", 290, canvas.height - 38);
-    ctx.fillText("$1500", 350, canvas.height - 38);
-    ctx.fillText("$1500", 410, canvas.height - 38);
-
-    ctx.fillText("$1", 470, canvas.height - 38);
-    ctx.fillText("$20", 530, canvas.height - 38);
-
-    ctx.font = "bold 20px sans-serif";
-    // currency
-    ctx.drawImage(currencySprite, 50, canvas.height - 160, 30, 30);
-    ctx.fillText(Math.round(currency*100)/100, 90, canvas.height - 138);
-    // enemy
-    ctx.drawImage(enemySprite, 50, canvas.height - 200, 30, 30);
+    ctx.fillText(currency, 90, canvas.height - 138);
     ctx.fillText(enemies.length, 90, canvas.height - 178);
-    // turret
-    ctx.drawImage(turretSprite, 50, canvas.height - 240, 30, 30);
     ctx.fillText(turrets.length, 90, canvas.height - 218);
+    
+    playerHealthBar.value = player.health;
+    playerHealthBar.maxValue = player.maxHealth;
+    playerHealthBar.draw();
 }
 
 function render() {
@@ -795,33 +856,23 @@ function render() {
     // draw health bars
     for (let i = 0; i < enemies.length; i++) {
         let enemy = enemies[i];
-        ctx.fillStyle = 'red';
-        ctx.fillRect(enemy.x - viewport.x, enemy.y - viewport.y - 10, enemy.sx, 5);
-        ctx.fillStyle = 'green';
-        ctx.fillRect(enemy.x - viewport.x, enemy.y - viewport.y - 10, enemy.health / enemy.maxHealth * enemy.sx, 5);
-        ctx.font = '8px Arial';
-        ctx.fillStyle = 'black';
-        ctx.fillText(enemy.health, enemy.x - viewport.x, enemy.y - viewport.y - 12);
+        let healthBar = new StatBar(enemy.maxHealth, enemy.health);
+        healthBar.x = enemy.x - viewport.x;
+        healthBar.y = enemy.y - viewport.y - 10;
+        healthBar.sx = enemy.sx;
+        healthBar.sy = 5;
+        healthBar.draw();
     }
-    
-    ctx.fillStyle = 'red';
-    ctx.fillRect(player.x - viewport.x, player.y - viewport.y - 10, player.sx, 5);
-    ctx.fillStyle = 'green';
-    ctx.fillRect(player.x - viewport.x, player.y - viewport.y - 10, player.health / player.maxHealth * player.sx, 5);
 
     for (let i = 0; i < turrets.length; i++) {
         let turret = turrets[i];
-        ctx.fillStyle ='red';
-        ctx.fillRect(turret.x - viewport.x, turret.y - viewport.y - 10, turret.sx, 5);
-        ctx.fillStyle = 'green';
-        ctx.fillRect(turret.x - viewport.x, turret.y - viewport.y - 10, turret.health / turret.maxHealth * turret.sx, 5);
+        let healthBar = new StatBar(turret.maxHealth, turret.health);
+        healthBar.x = turret.x - viewport.x;
+        healthBar.y = turret.y - viewport.y - 10;
+        healthBar.sx = turret.sx;
+        healthBar.sy = 5;
+        healthBar.draw();
     }
-
-    // main health bar
-    ctx.fillStyle = 'green';
-    ctx.fillRect(0, 0, player.health / player.maxHealth * canvas.width, 5);
-    ctx.fillStyle ='red';
-    ctx.fillRect(0, 0, player.health / player.maxHealth * canvas.width, 5);
 
     drawUI();
     requestAnimationFrame(render);
