@@ -208,9 +208,16 @@ class Button extends UIElement {
         this.text = text;
         this.top = "";
         this.bottom = "";
+        this.callback = () => {};
     }
     click() {
-        console.log("Button clicked");
+        this.callback();
+    }
+    isClicked(x, y) {
+        if (x > this.x && x < this.x + this.sx && y > this.y && y < this.y + this.sy) {
+            return true;
+        }
+        return false;
     }
     draw() {
         ctx.fillStyle = "#999999";
@@ -274,6 +281,12 @@ canvas.imageSmoothingEnabled = false;
 const ctx = canvas.getContext('2d');
 let viewport = {"x": 0, "y": 0};
 
+let enemies = [];
+let healthPacks = [];
+let projectiles = [];
+let turrets = [];
+let currency = 10;
+
 function createNewEnemy() {
     let enemy = new Enemy();
     let rate = Math.round(((Math.abs(viewport.x) / canvas.width) + (Math.abs(viewport.y) / canvas.height)) / 2) + 1;
@@ -315,6 +328,96 @@ function createNewEnemy() {
 
     return enemy;
 }
+function createTurret(num) {
+    console.log("createTurret", num);
+    if (num == 2) {
+        if (currency >= 100) {
+            let turret = new ShotgunTurret();
+            turret.x = player.x + player.sx/2 - turret.sx/2;
+            turret.y = player.y + player.sy/2 - turret.sy/2;
+
+            turrets.push(turret);
+            currency -= 100;
+        }
+    } else if (num == 1) {
+        if (currency >= 50) {
+            let turret = new Turret();
+            turret.x = player.x + player.sx/2 - turret.sx/2;
+            turret.y = player.y + player.sy/2 - turret.sy/2;
+
+            turrets.push(turret);
+            currency -= 50;
+        }
+    } else if (num == 3) {
+        if (currency >= 150) {
+            let turret = new CannonTurret();
+            turret.x = player.x + player.sx/2 - turret.sx/2;
+            turret.y = player.y + player.sy/2 - turret.sy/2;
+
+            turrets.push(turret);
+            currency -= 150;
+        }
+    } else if (num == 4) {
+        if (currency >= 500) {
+            let turret = new SpamTurret();
+            turret.x = player.x + player.sx/2 - turret.sx/2;
+            turret.y = player.y + player.sy/2 - turret.sy/2;
+
+            turrets.push(turret);
+            currency -= 500;
+        }
+    } else if (num == 5) {
+        if (currency >= 800) {
+            let turret = new SpiderTurret();
+            turret.x = player.x + player.sx/2 - turret.sx/2;
+            turret.y = player.y + player.sy/2 - turret.sy/2;
+
+            turrets.push(turret);
+            currency -= 800;
+        }
+    } else if (num == 6) {
+        if (currency >= 1500) {
+            let turret = new PulseTurret();
+            turret.x = player.x + player.sx/2 - turret.sx/2;
+            turret.y = player.y + player.sy/2 - turret.sy/2;
+
+            turrets.push(turret);
+            currency -= 1500;
+        }
+    } else if (num == 7) {
+        if (currency >= 1500) {
+            let turret = new RailgunTurret();
+            turret.x = player.x + player.sx/2 - turret.sx/2;
+            turret.y = player.y + player.sy/2 - turret.sy/2;
+
+            turrets.push(turret);
+            currency -= 1500;
+        }
+    }
+}
+function buyEnemy() {
+    if (currency >= 20) {
+        let enemy = createNewEnemy();
+        enemies.push(enemy);
+        currency -= 20;
+    }
+}
+function shoot() {
+    if (currency >= 1) {
+        let projectile = new Projectile();
+        projectile.x = player.x + player.sx/2;
+        projectile.y = player.y + player.sy/2;
+        projectile.sx = 2;
+        projectile.sy = 2;
+        
+        let angle = Math.atan2(mousePosition.y - player.y, mousePosition.x - player.x);
+        projectile.vx = Math.cos(angle);
+        projectile.vy = Math.sin(angle);
+
+        projectiles.push(projectile);
+        currency -= 1;
+    }
+}
 
 let player = new Player();
 player.x = canvas.width / 2;
@@ -329,16 +432,10 @@ playerHealthBar.y = canvas.height - 270;
 playerHealthBar.sx = 100;
 playerHealthBar.sy = 10;
 
-let enemies = [];
-let healthPacks = [];
-let projectiles = [];
-let turrets = [];
-
 let mousePosition = {"x": 0, "y": 0};
 
 let playerVelocity = {"left": 0, "up":0, "right":0, "down":0};
 
-let currency = 10;
 let lastRender = performance.now();
 let frameCount = 0;
 let fps = 0;
@@ -360,12 +457,20 @@ turretSprite.sx = 30;
 turretSprite.sy = 30;
 
 let menuButtons = [];
-for (i = 0; i < 9; i++) {
+for (i = 0; i < 8; i++) {
     let menuButton = new Button((i+1).toString());
     if (i == 7) {
-        menuButton.text = "␣";
-    } else if (i == 8) {
         menuButton.text = "+";
+        menuButton.callback = () => {
+            buyEnemy();
+        }
+    } else {
+        console.log("createTurret", i+1);
+        menuButton.callback = (function(index) {
+            return function() {
+                createTurret(index + 1);
+            }
+        })(i);
     }
     menuButton.x = 50 + i * 60;
     menuButton.y = canvas.height - 100;
@@ -378,8 +483,7 @@ menuButtons[3].top = "Spam";
 menuButtons[4].top = "Spider";
 menuButtons[5].top = "Pulse";
 menuButtons[6].top = "Railgun";
-menuButtons[7].top = "Shoot";
-menuButtons[8].top = "Spawn";
+menuButtons[7].top = "Spawn";
 menuButtons[0].bottom = "$50";
 menuButtons[1].bottom = "$100";
 menuButtons[2].bottom = "$150";
@@ -387,8 +491,7 @@ menuButtons[3].bottom = "$500";
 menuButtons[4].bottom = "$800";
 menuButtons[5].bottom = "$1500";
 menuButtons[6].bottom = "$1500";
-menuButtons[7].bottom = "$1";
-menuButtons[8].bottom = "$20";
+menuButtons[7].bottom = "$20";
 
 for (let i = 0; i < 5; i++) {
     let enemy = createNewEnemy();
@@ -407,6 +510,20 @@ for (let i = 0; i < 5; i++) {
 document.addEventListener("mousemove",  (e) => {
     mousePosition.x = e.clientX + viewport.x;
     mousePosition.y = e.clientY + viewport.y;
+});
+document.addEventListener("click", (e) => {
+    let clickedButton = false;
+    for (let i = 0; i < menuButtons.length; i++) {
+        const button = menuButtons[i];
+        if (button.isClicked(e.clientX, e.clientY)) {
+            button.click();
+            clickedButton = true;
+            break;
+        }
+    }
+    if (!clickedButton) {
+        shoot();
+    }
 });
 // moving keys
 document.addEventListener('keydown', function(event) {
@@ -449,27 +566,8 @@ document.addEventListener('keyup', function(event) {
 });
 
 document.addEventListener('keydown', function(event) {
-    if (event.key == ' ') {
-        if (currency >= 1) {
-            let projectile = new Projectile();
-            projectile.x = player.x + player.sx/2;
-            projectile.y = player.y + player.sy/2;
-            projectile.sx = 2;
-            projectile.sy = 2;
-            
-            let angle = Math.atan2(mousePosition.y - player.y, mousePosition.x - player.x);
-            projectile.vx = Math.cos(angle);
-            projectile.vy = Math.sin(angle);
-    
-            projectiles.push(projectile);
-            currency -= 1;
-        }
-    } else if (event.key == '=' || event.key == '+') {
-        if (currency >= 20) {
-            let enemy = createNewEnemy();
-            enemies.push(enemy);
-            currency -= 20;
-        }
+    if (event.key == '=' || event.key == '+') {
+        buyEnemy();
     } else if (event.key == ']') {
         localStorage.setItem('data', JSON.stringify({
             "enemies": enemies,
@@ -564,70 +662,8 @@ document.addEventListener('keydown', function(event) {
         player.maxHealth = data.player.maxHealth;
         player.speed = data.player.speed;
 
-    } else if (event.key == '2') {
-        if (currency >= 100) {
-            let turret = new ShotgunTurret();
-            turret.x = player.x + player.sx/2 - turret.sx/2;
-            turret.y = player.y + player.sy/2 - turret.sy/2;
-
-            turrets.push(turret);
-            currency -= 100;
-        }
-    } else if (event.key == '1') {
-        if (currency >= 50) {
-            let turret = new Turret();
-            turret.x = player.x + player.sx/2 - turret.sx/2;
-            turret.y = player.y + player.sy/2 - turret.sy/2;
-
-            turrets.push(turret);
-            currency -= 50;
-        }
-    } else if (event.key == '3') {
-        if (currency >= 150) {
-            let turret = new CannonTurret();
-            turret.x = player.x + player.sx/2 - turret.sx/2;
-            turret.y = player.y + player.sy/2 - turret.sy/2;
-
-            turrets.push(turret);
-            currency -= 150;
-        }
-    } else if (event.key == '4') {
-        if (currency >= 500) {
-            let turret = new SpamTurret();
-            turret.x = player.x + player.sx/2 - turret.sx/2;
-            turret.y = player.y + player.sy/2 - turret.sy/2;
-
-            turrets.push(turret);
-            currency -= 500;
-        }
-    } else if (event.key == '5') {
-        if (currency >= 800) {
-            let turret = new SpiderTurret();
-            turret.x = player.x + player.sx/2 - turret.sx/2;
-            turret.y = player.y + player.sy/2 - turret.sy/2;
-
-            turrets.push(turret);
-            currency -= 800;
-        }
-    } else if (event.key == '6') {
-        if (currency >= 1500) {
-            let turret = new PulseTurret();
-            turret.x = player.x + player.sx/2 - turret.sx/2;
-            turret.y = player.y + player.sy/2 - turret.sy/2;
-
-            turrets.push(turret);
-            currency -= 1500;
-        }
-    } else if (event.key == '7') {
-        if (currency >= 1500) {
-            let turret = new RailgunTurret();
-            turret.x = player.x + player.sx/2 - turret.sx/2;
-            turret.y = player.y + player.sy/2 - turret.sy/2;
-
-            turrets.push(turret);
-            currency -= 1500;
-        }
-    
+    } else if (['1', '2', '3', '4', '5', '6', '7'].includes(event.key)) {
+        createTurret(parseInt(event.key));
     }
 });
 
