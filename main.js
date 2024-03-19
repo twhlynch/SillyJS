@@ -548,20 +548,6 @@ if (( 'ontouchstart' in window ) ||
         playerVelocity.up = 0;
         playerVelocity.down = 0;
     };
-    document.addEventListener("touchstart", function(e) {
-        for (let i = 0; i < mobileButtons.length; i++) {
-            if (mobileButtons[i].isClicked(e.clientX, e.clientY)) {
-                mobileButtons[i].click();
-            }
-        }
-    });
-    document.addEventListener("touchend", function(e) {
-        for (let i = 0; i < mobileButtons.length; i++) {
-            if (mobileButtons[i].isClicked(e.changedTouches[0].clientX, e.changedTouches[0].clientY)) {
-                mobileButtons[i].unclick();
-            }
-        }
-    });
 }
 
 for (let i = 0; i < 5; i++) {
@@ -594,6 +580,7 @@ function handleClick(e) {
     for (let i = 0; i < mobileButtons.length; i++) {
         const button = mobileButtons[i];
         if (button.isClicked(e.clientX, e.clientY)) {
+            button.click();
             clickedButton = true;
             break;
         }
@@ -609,12 +596,21 @@ document.addEventListener("touchmove",  (e) => {
     setMousePosition(e);
 });
 document.addEventListener("mousedown", (e) => {
+    setMousePosition(e);
     handleClick(e);
 });
 document.addEventListener("touchstart", (e) => {
     setMousePosition(e);
     handleClick(e);
 });
+document.addEventListener("touchend", function(e) {
+    for (let i = 0; i < mobileButtons.length; i++) {
+        if (mobileButtons[i].isClicked(e.changedTouches[0].clientX, e.changedTouches[0].clientY)) {
+            mobileButtons[i].unclick();
+        }
+    }
+});
+
 // moving keys
 document.addEventListener('keydown', function(event) {
     if (event.key == 'ArrowLeft') {
