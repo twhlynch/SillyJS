@@ -164,7 +164,7 @@ class SpiderTurret extends Turret {
 class PulseTurret extends Turret {
     constructor() {
         super();
-        this.fireRate = 5; // 1 per second
+        this.fireRate = 5; // 1 per 5 seconds
         this.firePower = 5;
         this.projectileCount = 2000;
         this.type = "pulse";
@@ -173,7 +173,7 @@ class PulseTurret extends Turret {
 class RailgunTurret extends Turret {
     constructor() {
         super();
-        this.fireRate = 5; // 1 per second
+        this.fireRate = 5; // 1 per 5 seconds
         this.firePower = 1000;
         this.projectileCount = 1;
         this.type = "railgun";
@@ -200,6 +200,7 @@ class SpamTurret extends Turret {
 const canvas = document.getElementById('renderer');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+canvas.imageSmoothingEnabled = false;
 const ctx = canvas.getContext('2d');
 let viewport = {"x": 0, "y": 0};
 
@@ -504,6 +505,19 @@ let currency = 10;
 let lastRender = performance.now();
 let frameCount = 0;
 let fps = 0;
+
+let sprites = {
+    "currency": "sprites/currency.png",
+    "enemy": "sprites/enemy.png",
+    "turret": "sprites/turret.png"
+};
+let currencySprite = new Image();
+currencySprite.src = sprites.currency;
+let enemySprite = new Image();
+enemySprite.src = sprites.enemy;
+let turretSprite = new Image();
+turretSprite.src = sprites.turret;
+
 function drawUI() {
     // ctx.strokeStyle = 'black';
     // ctx.strokeRect(viewport.x, viewport.y, canvas.width + viewport.x, canvas.height + viewport.y);
@@ -519,21 +533,72 @@ function drawUI() {
     }
     ctx.font = '12px Arial';
     ctx.fillStyle = 'black';
-    ctx.fillText(`Coins: ${Math.round(currency*100)/100}`, 10, 80);
     ctx.fillText(`FPS: ${Math.round(fps)}`, 10, 20);
-    ctx.fillText(`Enemies: ${enemies.length}`, 10, 35);
-    ctx.fillText(`Turrets: ${turrets.length}`, 10, 50);
-    ctx.fillText(`Projectiles: ${projectiles.length}`, 10, 65);
-    
-    ctx.fillText("[Space] Fire Bullet ($1)", 10, 110);
-    ctx.fillText("[+/=] Spawn Enemy ($20)", 10, 125);
-    ctx.fillText("[1] Place Turret ($50)", 10, 140);
-    ctx.fillText("[2] Place Shotgun Turret ($100)", 10, 155);
-    ctx.fillText("[3] Place Cannon Turret ($150)", 10, 170);
-    ctx.fillText("[4] Place Spam Turret ($500)", 10, 185);
-    ctx.fillText("[5] Place Spider Turret ($800)", 10, 200);
-    ctx.fillText("[6] Place Pulse Turret ($1500)", 10, 215);
-    ctx.fillText("[7] Place Railgun Turret ($1500)", 10, 230);
+
+    // draw boxes across bottom of screen for each turret type
+    ctx.fillStyle = 'gray';
+    ctx.font = '12px sans-serif';
+    // squares
+    ctx.fillRect(50, canvas.height - 100, 50, 50);
+    ctx.fillRect(110, canvas.height - 100, 50, 50);
+    ctx.fillRect(170, canvas.height - 100, 50, 50);
+    ctx.fillRect(230, canvas.height - 100, 50, 50);
+    ctx.fillRect(290, canvas.height - 100, 50, 50);
+    ctx.fillRect(350, canvas.height - 100, 50, 50);
+    ctx.fillRect(410, canvas.height - 100, 50, 50);
+
+    ctx.fillRect(470, canvas.height - 100, 50, 50);
+    ctx.fillRect(530, canvas.height - 100, 50, 50);
+
+    ctx.fillStyle = 'black';
+    // names
+    ctx.fillText("Turret", 50, canvas.height - 105);
+    ctx.fillText("Shotgun", 110, canvas.height - 105);
+    ctx.fillText("Cannon", 170, canvas.height - 105);
+    ctx.fillText("Spam", 230, canvas.height - 105);
+    ctx.fillText("Spider", 290, canvas.height - 105);
+    ctx.fillText("Pulse", 350, canvas.height - 105);
+    ctx.fillText("Railgun", 410, canvas.height - 105);
+
+    ctx.fillText("Shoot", 470, canvas.height - 105);
+    ctx.fillText("Spawn", 530, canvas.height - 105);
+
+    ctx.font = "bold 20px sans-serif";
+    // keys
+    ctx.fillText("1", 70, canvas.height - 70);
+    ctx.fillText("2", 130, canvas.height - 70);
+    ctx.fillText("3", 190, canvas.height - 70);
+    ctx.fillText("4", 250, canvas.height - 70);
+    ctx.fillText("5", 310, canvas.height - 70);
+    ctx.fillText("6", 370, canvas.height - 70);
+    ctx.fillText("7", 430, canvas.height - 70);
+
+    ctx.fillText("'    '", 480, canvas.height - 68);
+    ctx.fillText("+", 550, canvas.height - 70);
+
+    ctx.font = "12px sans-serif";
+    // prices
+    ctx.fillText("$50", 50, canvas.height - 38);
+    ctx.fillText("$100", 110, canvas.height - 38);
+    ctx.fillText("$150", 170, canvas.height - 38);
+    ctx.fillText("$500", 230, canvas.height - 38);
+    ctx.fillText("$800", 290, canvas.height - 38);
+    ctx.fillText("$1500", 350, canvas.height - 38);
+    ctx.fillText("$1500", 410, canvas.height - 38);
+
+    ctx.fillText("$1", 470, canvas.height - 38);
+    ctx.fillText("$20", 530, canvas.height - 38);
+
+    ctx.font = "bold 20px sans-serif";
+    // currency
+    ctx.drawImage(currencySprite, 50, canvas.height - 160, 30, 30);
+    ctx.fillText(Math.round(currency*100)/100, 90, canvas.height - 138);
+    // enemy
+    ctx.drawImage(enemySprite, 50, canvas.height - 200, 30, 30);
+    ctx.fillText(enemies.length, 90, canvas.height - 178);
+    // turret
+    ctx.drawImage(turretSprite, 50, canvas.height - 240, 30, 30);
+    ctx.fillText(turrets.length, 90, canvas.height - 218);
 }
 
 function render() {
