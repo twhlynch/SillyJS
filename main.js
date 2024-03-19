@@ -525,24 +525,28 @@ if (( 'ontouchstart' in window ) ||
 
     upButton.callback = () => {
         playerVelocity.up = player.speed;
+        playerVelocity.down = 0;
     };
     upButton.off = () => {
         playerVelocity.up = 0;
     };
     downButton.callback = () => {
         playerVelocity.down = player.speed;
+        playerVelocity.up = 0;
     };
     downButton.off = () => {
         playerVelocity.down = 0;
     };
     leftButton.callback = () => {
         playerVelocity.left = player.speed;
+        playerVelocity.right = 0;
     };
     leftButton.off = () => {
         playerVelocity.left = 0;
     };
     rightButton.callback = () => {
         playerVelocity.right = player.speed;
+        playerVelocity.left = 0;
     };
     rightButton.off = () => {
         playerVelocity.right = 0;
@@ -935,8 +939,8 @@ function render() {
     for (let i = 0; i < fighters.length; i++) {
         let fighter = fighters[i];
         if (player.isColliding(fighter)) {
-            player.damage(fighter.health);
-            fighters.damage(player.maxHealth);
+            player.damage(fighter.reward);
+            fighters.splice(i, 1);
         }
         for (let j = 0; j < turrets.length; j++) {
             let turret = turrets[j];
