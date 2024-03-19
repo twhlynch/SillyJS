@@ -321,6 +321,7 @@ let projectiles = [];
 let turrets = [];
 let currency = 10;
 let kills = 0;
+let pricing = 1;
 
 function createNewEnemy() {
     let enemy = new Enemy();
@@ -361,76 +362,92 @@ function createNewEnemy() {
 }
 function createTurret(num) {
     if (num == 2) {
-        if (currency >= 100) {
+        let price = 100;
+        if (currency >= 100*pricing) {
             let turret = new ShotgunTurret();
             turret.x = player.x + player.sx/2 - turret.sx/2;
             turret.y = player.y + player.sy/2 - turret.sy/2;
 
             turrets.push(turret);
-            currency -= 100;
+            currency = (Math.round(currency*100) - Math.round(price*pricing*100))/100;
+            pricing = (Math.round(pricing*100) + Math.round(0.1*100))/100;
         }
     } else if (num == 1) {
-        if (currency >= 50) {
+        let price = 50;
+        if (currency >= 50*pricing) {
             let turret = new Turret();
             turret.x = player.x + player.sx/2 - turret.sx/2;
             turret.y = player.y + player.sy/2 - turret.sy/2;
 
             turrets.push(turret);
-            currency -= 50;
+            currency = (Math.round(currency*100) - Math.round(price*pricing*100))/100;
+            pricing = (Math.round(pricing*100) + Math.round(0.1*100))/100;
         }
     } else if (num == 3) {
-        if (currency >= 150) {
+        let price = 150;
+        if (currency >= 150*pricing) {
             let turret = new CannonTurret();
             turret.x = player.x + player.sx/2 - turret.sx/2;
             turret.y = player.y + player.sy/2 - turret.sy/2;
 
             turrets.push(turret);
-            currency -= 150;
+            currency = (Math.round(currency*100) - Math.round(price*pricing*100))/100;
+            pricing = (Math.round(pricing*100) + Math.round(0.1*100))/100;
         }
     } else if (num == 4) {
-        if (currency >= 500) {
+        let price = 500;
+        if (currency >= 500*pricing) {
             let turret = new SpamTurret();
             turret.x = player.x + player.sx/2 - turret.sx/2;
             turret.y = player.y + player.sy/2 - turret.sy/2;
 
             turrets.push(turret);
-            currency -= 500;
+            currency = (Math.round(currency*100) - Math.round(price*pricing*100))/100;
+            pricing = (Math.round(pricing*100) + Math.round(0.1*100))/100;
         }
     } else if (num == 5) {
-        if (currency >= 800) {
+        let price = 800;
+        if (currency >= 800*pricing) {
             let turret = new SpiderTurret();
             turret.x = player.x + player.sx/2 - turret.sx/2;
             turret.y = player.y + player.sy/2 - turret.sy/2;
 
             turrets.push(turret);
-            currency -= 800;
+            currency = (Math.round(currency*100) - Math.round(price*pricing*100))/100;
+            pricing = (Math.round(pricing*100) + Math.round(0.1*100))/100;
         }
     } else if (num == 6) {
-        if (currency >= 1500) {
+        let price = 1500;
+        if (currency >= 1500*pricing) {
             let turret = new PulseTurret();
             turret.x = player.x + player.sx/2 - turret.sx/2;
             turret.y = player.y + player.sy/2 - turret.sy/2;
 
             turrets.push(turret);
-            currency -= 1500;
+            currency = (Math.round(currency*100) - Math.round(price*pricing*100))/100;
+            pricing = (Math.round(pricing*100) + Math.round(0.1*100))/100;
         }
     } else if (num == 7) {
-        if (currency >= 1500) {
+        let price = 1500;
+        if (currency >= 1500*pricing) {
             let turret = new RailgunTurret();
             turret.x = player.x + player.sx/2 - turret.sx/2;
             turret.y = player.y + player.sy/2 - turret.sy/2;
 
             turrets.push(turret);
-            currency -= 1500;
+            currency = (Math.round(currency*100) - Math.round(price*pricing*100))/100;
+            pricing = (Math.round(pricing*100) + Math.round(0.1*100))/100;
         }
     } else if (num == 8) {
-        if (currency >= 400) {
+        let price = 400;
+        if (currency >= 400*pricing) {
             let turret = new InstaTurret();
             turret.x = player.x + player.sx/2 - turret.sx/2;
             turret.y = player.y + player.sy/2 - turret.sy/2;
 
             turrets.push(turret);
-            currency -= 400;
+            currency = (Math.round(currency*100) - Math.round(price*pricing*100))/100;
+            pricing = (Math.round(pricing*100) + Math.round(0.1*100))/100;
         }
     }
 }
@@ -705,6 +722,7 @@ document.addEventListener('keydown', function(event) {
             "mousePosition": mousePosition,
             "playerVelocity": playerVelocity,
             "currency": currency,
+            "pricing": pricing,
             "kills": kills,
             "fighters": fighters
         }));
@@ -796,6 +814,7 @@ document.addEventListener('keydown', function(event) {
 
         kills = data.kills;
         currency = data.currency;
+        pricing = data.pricing;
         viewport.x = data.viewport.x;
         viewport.y = data.viewport.y;
         viewport.width = data.viewport.width;
@@ -867,6 +886,15 @@ function drawUI() {
     ctx.fillStyle = 'black';
     ctx.fillText(`FPS: ${Math.round(fps)}`, 10, 20);
 
+    menuButtons[0].bottom = "$"+(Math.round(50*pricing*100)/100);
+    menuButtons[1].bottom = "$"+(Math.round(100*pricing*100)/100);
+    menuButtons[2].bottom = "$"+(Math.round(150*pricing*100)/100);
+    menuButtons[3].bottom = "$"+(Math.round(500*pricing*100)/100);
+    menuButtons[4].bottom = "$"+(Math.round(800*pricing*100)/100);
+    menuButtons[5].bottom = "$"+(Math.round(1500*pricing*100)/100);
+    menuButtons[6].bottom = "$"+(Math.round(1500*pricing*100)/100);
+    menuButtons[7].bottom = "$"+(Math.round(400*pricing*100)/100);
+
     menuButtons.forEach((button) => {
         button.draw();
     });
@@ -877,7 +905,7 @@ function drawUI() {
     enemySprite.draw();
     turretSprite.draw();
     ctx.font = "bold 20px sans-serif";
-    ctx.fillText(currency, 90, canvas.height - 138);
+    ctx.fillText(Math.round(currency*100)/100, 90, canvas.height - 138);
     ctx.fillText(`${enemies.length} & ${fighters.length}  (${kills} kills)`, 90, canvas.height - 178);
     ctx.fillText(turrets.length, 90, canvas.height - 218);
     
