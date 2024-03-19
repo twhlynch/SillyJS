@@ -209,9 +209,13 @@ class Button extends UIElement {
         this.top = "";
         this.bottom = "";
         this.callback = () => {};
+        this.off = () => {};
     }
     click() {
         this.callback();
+    }
+    unclick() {
+        this.off();
     }
     isClicked(x, y) {
         if (x > this.x && x < this.x + this.sx && y > this.y && y < this.y + this.sy) {
@@ -493,6 +497,69 @@ menuButtons[5].bottom = "$1500";
 menuButtons[6].bottom = "$1500";
 menuButtons[7].bottom = "$20";
 
+// if on mobile
+if (( 'ontouchstart' in window ) || 
+    ( navigator.maxTouchPoints > 0 ) || 
+    ( navigator.msMaxTouchPoints > 0 )) {
+    // mobile UI
+    const upButton = new Button("^");
+    const downButton = new Button("v");
+    const leftButton = new Button("<");
+    const rightButton = new Button(">");
+    const buttons = [upButton, downButton, leftButton, rightButton];
+    for (let i = 0; i < buttons.length; i++) {
+        buttons[i].y = canvas.height - 100;
+    }
+    upButton.x = canvas.width - 160;
+    upButton.y -= 60;
+    downButton.x = canvas.width - 160;
+    leftButton.x = canvas.width - 220;
+    rightButton.x = canvas.width - 100;
+
+    upButton.callback = () => {
+        playerVelocity.up = player.speed;
+    };
+    upButton.off = () => {
+        playerVelocity.up = 0;
+    };
+    downButton.callback = () => {
+        playerVelocity.down = player.speed;
+    };
+    downButton.off = () => {
+        playerVelocity.down = 0;
+    };
+    leftButton.callback = () => {
+        playerVelocity.left = player.speed;
+    };
+    leftButton.off = () => {
+        playerVelocity.left = 0;
+    };
+    rightButton.callback = () => {
+        playerVelocity.right = player.speed;
+    };
+    rightButton.off = () => {
+        playerVelocity.right = 0;
+    };
+    menuButtons.push(downButton);
+    menuButtons.push(upButton);
+    menuButtons.push(leftButton);
+    menuButtons.push(rightButton);
+    document.addEventListener("touchstart", function(e) {
+        for (let i = 0; i < buttons.length; i++) {
+            if (buttons[i].isClicked(e.clientX, e.clientY)) {
+                buttons[i].click();
+            }
+        }
+    });
+    document.addEventListener("touchend", function(e) {
+        for (let i = 0; i < buttons.length; i++) {
+            if (buttons[i].isClicked(e.changedTouches[0].clientX, e.changedTouches[0].clientY)) {
+                buttons[i].unclick();
+            }
+        }
+    });
+}
+
 for (let i = 0; i < 5; i++) {
     let enemy = createNewEnemy();
     enemies.push(enemy);
@@ -506,12 +573,11 @@ for (let i = 0; i < 5; i++) {
     healthPack.sy = 15;
     healthPacks.push(healthPack);
 }
-
-document.addEventListener("mousemove",  (e) => {
+function setMousePosition(e) {
     mousePosition.x = e.clientX + viewport.x;
     mousePosition.y = e.clientY + viewport.y;
-});
-document.addEventListener("click", (e) => {
+}
+function handleClick(e) {
     let clickedButton = false;
     for (let i = 0; i < menuButtons.length; i++) {
         const button = menuButtons[i];
@@ -524,6 +590,19 @@ document.addEventListener("click", (e) => {
     if (!clickedButton) {
         shoot();
     }
+}
+document.addEventListener("mousemove",  (e) => {
+    setMousePosition(e);
+});
+document.addEventListener("touchmove",  (e) => {
+    setMousePosition(e);
+});
+document.addEventListener("mousedown", (e) => {
+    handleClick(e);
+});
+document.addEventListener("touchstart", (e) => {
+    setMousePosition(e);
+    handleClick(e);
 });
 // moving keys
 document.addEventListener('keydown', function(event) {
@@ -564,7 +643,6 @@ document.addEventListener('keyup', function(event) {
         playerVelocity.right = 0;
     }
 });
-
 document.addEventListener('keydown', function(event) {
     if (event.key == '=' || event.key == '+') {
         buyEnemy();
