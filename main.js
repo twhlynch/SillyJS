@@ -324,15 +324,15 @@ function createNewEnemy() {
     let choice = Math.floor(Math.random() * 4);
     if (choice == 0) {
         enemy.x = Math.random() * canvas.width + viewport.x;
-        enemy.y = canvas.height + viewport.y + enemy.sy * 2;
+        enemy.y = canvas.height + viewport.y + enemy.sy;
     } else if (choice == 1) {
         enemy.x = Math.random() * canvas.width + viewport.x;
-        enemy.y = -enemy.sy * 2;
+        enemy.y = viewport.y - enemy.sy * 2;
     } else if (choice == 2) {
-        enemy.x = canvas.width + viewport.x + enemy.sx * 2;
+        enemy.x = canvas.width + viewport.x + enemy.sx;
         enemy.y = Math.random() * canvas.height + viewport.y;
     } else if (choice == 3) {
-        enemy.x = -enemy.sx * 2;
+        enemy.x = viewport.x - enemy.sx * 2;
         enemy.y = Math.random() * canvas.height + viewport.y;
     }
 
@@ -1026,20 +1026,20 @@ function render() {
             enemies.push(newEnemy);
             kills++;
         }
-        if (enemies[i].x < viewport.x - 20) {
+        if (enemies[i].x < viewport.x - enemies[i].sx * 3) {
             let newEnemy = createNewEnemy();
             enemies[i].x = newEnemy.x;
             enemies[i].y = newEnemy.y;
-        } else if (enemies[i].x > canvas.width + viewport.x + 40) {
+        } else if (enemies[i].x > canvas.width + viewport.x + enemies[i].sx * 2) {
             let newEnemy = createNewEnemy();
             enemies[i].x = newEnemy.x;
             enemies[i].y = newEnemy.y;
         }
-        if (enemies[i].y < viewport.y - 20) {
+        if (enemies[i].y < viewport.y - enemies[i].sy * 3) {
             let newEnemy = createNewEnemy();
             enemies[i].x = newEnemy.x;
             enemies[i].y = newEnemy.y;
-        } else if (enemies[i].y > canvas.height + viewport.y + 40) {
+        } else if (enemies[i].y > canvas.height + viewport.y + enemies[i].sy * 2) {
             let newEnemy = createNewEnemy();
             enemies[i].x = newEnemy.x;
             enemies[i].y = newEnemy.y;
