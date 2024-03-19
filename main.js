@@ -673,7 +673,10 @@ document.addEventListener('keydown', function(event) {
             "player": player,
             "viewport": viewport,
             "mousePosition": mousePosition,
-            "playerVelocity": playerVelocity
+            "playerVelocity": playerVelocity,
+            "currency": currency,
+            "kills": kills,
+            "fighters": fighters
         }));
     } else if (event.key == '[') {
         let data = localStorage.getItem('data');
@@ -743,6 +746,22 @@ document.addEventListener('keydown', function(event) {
             turrets.push(newTurret);
         }
 
+        fighters = [];
+        for (let i = 0; i < data.fighters.length; i++) {
+            let newFighter = new Fighter();
+            newFighter.x = data.fighters[i].x;
+            newFighter.y = data.fighters[i].y;
+            newFighter.health = data.fighters[i].health;
+            newFighter.maxHealth = data.fighters[i].maxHealth;
+            newFighter.speed = data.fighters[i].speed;
+            newFighter.sx = data.fighters[i].sx;
+            newFighter.sy = data.fighters[i].sy;
+            newFighter.projectileCount = data.fighters[i].projectileCount;
+            fighters.push(newFighter);
+        }
+
+        kills = data.kills;
+        currency = data.currency;
         viewport.x = data.viewport.x;
         viewport.y = data.viewport.y;
         viewport.width = data.viewport.width;
@@ -884,25 +903,35 @@ function render() {
         if (turret.x > viewport.x - 20 && turret.x < viewport.x + canvas.width + 40 &&
             turret.y > viewport.y - 20 && turret.y < viewport.y + canvas.height + 40) {
 
-            let closestEnemy = null;
-            let closestDistance = Infinity;
-            if (turret.type == "spider" || turret.type == "pulse") {
-                closestEnemy = new Enemy(turret.x, turret.y);
-            } else {
-                for (let j = 0; j < enemies.length; j++) {
-                    let enemy = enemies[j];
-                    let distance = Math.sqrt(Math.pow(enemy.x - turret.x, 2) + Math.pow(enemy.y - turret.y, 2));
-                    if (distance < closestDistance) {
-                        closestDistance = distance;
-                        closestEnemy = enemy;
+            // check turret fireRate and increment LastFire
+            let now = performance.now();
+            if (now - turret.lastFire >= turret.fireRate * 1000) {
+
+                let closestEnemy = null;
+                let closestDistance = Infinity;
+                if (turret.type == "spider" || turret.type == "pulse") {
+                    closestEnemy = new Enemy(turret.x, turret.y);
+                } else if (turret.type == "spam") {
+                    for (let j = 0; j < enemies.length; j++) {
+                        let enemy = enemies[j];
+                        let distance = Math.sqrt(Math.pow(enemy.x - turret.x, 2) + Math.pow(enemy.y - turret.y, 2));
+                        if (distance < closestDistance) {
+                            closestDistance = distance;
+                            closestEnemy = enemy;
+                        }
+                    }
+                } else {
+                    for (let j = 0; j < enemies.length; j++) {
+                        let enemy = enemies[j];
+                        let distance = Math.sqrt(Math.pow(enemy.x - turret.x, 2) + Math.pow(enemy.y - turret.y, 2));
+                        if (distance < closestDistance) {
+                            closestDistance = distance;
+                            closestEnemy = enemy;
+                        }
                     }
                 }
-            }
-
-            if (closestEnemy != null) {
-                // check turret fireRate and increment LastFire
-                let now = performance.now();
-                if (now - turret.lastFire >= turret.fireRate * 1000) {
+                
+                if (closestEnemy != null) {
                     let projectileList = turret.shootAt(closestEnemy.x, closestEnemy.y);
                     for (let j = 0; j < projectileList.length; j++) {
                         projectiles.push(projectileList[j]);
@@ -918,7 +947,6 @@ function render() {
                     }
                 }
             }
-
         }
     }
 
