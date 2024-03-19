@@ -91,7 +91,7 @@ class Boss extends Enemy {
         super();
         this.health = 10000;
         this.maxHealth = 10000;
-        this.reward = 1000;
+        this.reward = 100;
         this.sx = 150;
         this.sy = 200;
         this.speed = 0.1;
@@ -276,6 +276,14 @@ class StatBar extends UIElement {
         ctx.fillText(this.value, this.x, this.y - this.sy/2);
     }
 }
+class Fighter extends Enemy {
+    constructor() {
+        super();
+        this.sy *= 1.5;
+        this.maxHealth *= 2;
+        this.health *= 2;
+    }
+}
 
 
 const canvas = document.getElementById('renderer');
@@ -286,6 +294,7 @@ const ctx = canvas.getContext('2d');
 let viewport = {"x": 0, "y": 0};
 
 let enemies = [];
+let fighters = [];
 let healthPacks = [];
 let projectiles = [];
 let turrets = [];
@@ -304,7 +313,7 @@ function createNewEnemy() {
         enemy.reward += enemy.reward * rate / 10;
     }
 
-    if (rand > 5) {
+    if (Math.random() < 1/50 && rate > 5) {
         enemy = new Boss();
         enemy.health *= rate;
         enemy.maxHealth *= rate;
@@ -559,6 +568,7 @@ for (let i = 0; i < 5; i++) {
     healthPack.sy = 15;
     healthPacks.push(healthPack);
 }
+
 function setMousePosition(e) {
     mousePosition.x = e.clientX + viewport.x;
     mousePosition.y = e.clientY + viewport.y;
@@ -810,7 +820,7 @@ function drawUI() {
     turretSprite.draw();
     ctx.font = "bold 20px sans-serif";
     ctx.fillText(currency, 90, canvas.height - 138);
-    ctx.fillText(enemies.length, 90, canvas.height - 178);
+    ctx.fillText(`${enemies.length} | ${fighters.length}`, 90, canvas.height - 178);
     ctx.fillText(turrets.length, 90, canvas.height - 218);
     
     playerHealthBar.value = player.health;
@@ -822,6 +832,22 @@ function render() {
     // move entities towards player
     for (let i = 0; i < enemies.length; i++) {
         enemies[i].moveTowards(player.x, player.y);
+    }
+    for (let i = 0; i < fighters.length; i++) {
+        // find closest turret
+        let closestTurret = null;
+        let closestDistance = Infinity;
+        for (let j = 0; j < turrets.length; j++) {
+            let turret = turrets[j];
+            let distance = Math.sqrt(Math.pow(turret.x - fighters[i].x, 2) + Math.pow(turret.y - fighters[i].y, 2));
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestTurret = turret;
+            }
+        }
+        if (closestTurret) {
+            fighters[i].moveTowards(closestTurret.x, closestTurret.y);
+        }
     }
 
     // move player
@@ -849,23 +875,26 @@ function render() {
     // shoot closest enemy with turrets
     for (let i = 0; i < turrets.length; i++) {
         let turret = turrets[i];
-        let closestEnemy;
         // if in viewport
         if (turret.x > viewport.x - 20 && turret.x < viewport.x + canvas.width + 40 &&
             turret.y > viewport.y - 20 && turret.y < viewport.y + canvas.height + 40) {
-            for (let j = 0; j < enemies.length; j++) {
-                closestEnemy = enemies[j];
-                let distance = Math.sqrt(Math.pow(closestEnemy.x - turret.x, 2) + Math.pow(closestEnemy.y - turret.y, 2));
-                for (let k = 0; k < enemies.length; k++) {
-                    let enemy = enemies[k];
-                    let newDistance = Math.sqrt(Math.pow(enemy.x - turret.x, 2) + Math.pow(enemy.y - turret.y, 2));
-                    if (newDistance < distance) {
+
+            let closestEnemy = null;
+            let closestDistance = Infinity;
+            if (turret.type == "spider" || turret.type == "pulse") {
+                closestEnemy = new Enemy(turret.x, turret.y);
+            } else {
+                for (let j = 0; j < enemies.length; j++) {
+                    let enemy = enemies[j];
+                    let distance = Math.sqrt(Math.pow(enemy.x - turret.x, 2) + Math.pow(enemy.y - turret.y, 2));
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
                         closestEnemy = enemy;
-                        distance = newDistance;
                     }
                 }
             }
-            if (closestEnemy) {
+
+            if (closestEnemy != null) {
                 // check turret fireRate and increment LastFire
                 let now = performance.now();
                 if (now - turret.lastFire >= turret.fireRate * 1000) {
@@ -874,8 +903,17 @@ function render() {
                         projectiles.push(projectileList[j]);
                     }
                     turret.lastFire = now;
+                    // maybe make fighters
+                    if (Math.random() < 1/200) {
+                        let fighter = new Fighter();
+                        let newEnemy = createNewEnemy();
+                        fighter.x = newEnemy.x;
+                        fighter.y = newEnemy.y;
+                        fighters.push(fighter);
+                    }
                 }
             }
+
         }
     }
 
@@ -891,6 +929,20 @@ function render() {
             if (enemy.isColliding(turret)) {
                 turret.damage(enemy.health);
                 enemy.damage(turret.maxHealth);
+            }
+        }
+    }
+    for (let i = 0; i < fighters.length; i++) {
+        let fighter = fighters[i];
+        if (player.isColliding(fighter)) {
+            player.damage(fighter.health);
+            fighters.damage(player.maxHealth);
+        }
+        for (let j = 0; j < turrets.length; j++) {
+            let turret = turrets[j];
+            if (fighter.isColliding(turret)) {
+                turret.damage(fighter.health);
+                fighter.damage(turret.maxHealth);
             }
         }
     }
@@ -912,6 +964,13 @@ function render() {
             if (projectile.isColliding(enemy)) {
                 projectile.damage(enemy.health);
                 enemy.damage(projectile.maxHealth);
+            }
+        }
+        for (let j = 0; j < fighters.length; j++) {
+            let fighter = fighters[j];
+            if (projectile.isColliding(fighter)) {
+                projectile.damage(fighter.health);
+                fighter.damage(projectile.maxHealth);
             }
         }
     }
@@ -979,6 +1038,30 @@ function render() {
             turrets.splice(i, 1);
         }
     }
+    
+    for (let i = 0; i < fighters.length; i++) {
+        let fighter = fighters[i];
+        if (fighter.isDestroyed()) {
+            fighters.splice(i, 1);
+        }else if (fighter.x < viewport.x - 20) {
+            let newEnemy = createNewEnemy();
+            fighter.x = newEnemy.x;
+            fighter.y = newEnemy.y;
+        } else if (fighter.x > canvas.width + viewport.x + 40) {
+            let newEnemy = createNewEnemy();
+            fighter.x = newEnemy.x;
+            fighter.y = newEnemy.y;
+        }
+        if (fighter.y < viewport.y - 20) {
+            let newEnemy = createNewEnemy();
+            fighter.x = newEnemy.x;
+            fighter.y = newEnemy.y;
+        } else if (fighter.y > canvas.height + viewport.y + 40) {
+            let newEnemy = createNewEnemy();
+            fighter.x = newEnemy.x;
+            fighter.y = newEnemy.y;
+        }
+    }
 
     // draw entities
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -997,6 +1080,9 @@ function render() {
     for (let i = 0; i < enemies.length; i++) {
         ctx.fillRect(enemies[i].x - viewport.x, enemies[i].y - viewport.y, enemies[i].sx, enemies[i].sy);
     }
+    for (let i = 0; i < fighters.length; i++) {
+        ctx.fillRect(fighters[i].x - viewport.x, fighters[i].y - viewport.y, fighters[i].sx, fighters[i].sy);
+    }
 
     ctx.fillStyle = 'black';
     for (let i = 0; i < turrets.length; i++) {
@@ -1014,6 +1100,16 @@ function render() {
     // draw health bars
     for (let i = 0; i < enemies.length; i++) {
         let enemy = enemies[i];
+        let healthBar = new StatBar(enemy.maxHealth, enemy.health);
+        healthBar.x = enemy.x - viewport.x;
+        healthBar.y = enemy.y - viewport.y - 10;
+        healthBar.sx = enemy.sx;
+        healthBar.sy = 5;
+        healthBar.draw();
+    }
+
+    for (let i = 0; i < fighters.length; i++) {
+        let enemy = fighters[i];
         let healthBar = new StatBar(enemy.maxHealth, enemy.health);
         healthBar.x = enemy.x - viewport.x;
         healthBar.y = enemy.y - viewport.y - 10;
