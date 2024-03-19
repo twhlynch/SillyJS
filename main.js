@@ -214,7 +214,9 @@ class Button extends UIElement {
     }
     draw() {
         ctx.fillStyle = "#999999";
-        ctx.fillRect(this.x, this.y, this.sx, this.sy);
+        ctx.beginPath();
+        ctx.roundRect(this.x, this.y, this.sx, this.sy, [4]);
+        ctx.fill();
 
         ctx.font = `bold ${this.sx / 2}px sans-serif`;
         ctx.fillStyle = 'black';
