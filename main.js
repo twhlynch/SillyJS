@@ -293,26 +293,22 @@ let currency = 10;
 
 function createNewEnemy() {
     let enemy = new Enemy();
-    let rate = Math.round(((Math.abs(viewport.x) / canvas.width) + (Math.abs(viewport.y) / canvas.height)) / 2) + 1;
-
-    for (let index = 0; index < 5; index++) {
-        if (Math.random() > 0.8) {
-            enemy.speed = 3 + rate/10;
-            enemy.health = Math.round(Math.min(1000, enemy.health * 2) * (rate+1));
-            enemy.maxHealth = Math.round(Math.min(1000, enemy.maxHealth * 2) * (rate+1));
-            enemy.sx = Math.min(100, enemy.sx * 2);
-            enemy.sy = Math.min(100, enemy.sy * 2);
-            enemy.reward *= 2 + Math.round(rate*30);
-        } else {
-            break;
-        }
+    let rate = Math.round(Math.sqrt(Math.pow(viewport.x, 2) + Math.pow(viewport.y, 2)) / 1000) + 1;
+    let rand = Math.random() * rate;
+    if (rand > 1) {
+        enemy.speed += rate / 10;
+        enemy.health += enemy.health * rate / 10;
+        enemy.maxHealth = enemy.health;
+        enemy.sx += Math.min(100, enemy.sx * rate / 10);
+        enemy.sy += Math.min(100, enemy.sy * rate / 10);
+        enemy.reward += enemy.reward * rate / 10;
     }
 
-    if (Math.random() > 0.995 - rate / 100) {
+    if (rand > 5) {
         enemy = new Boss();
         enemy.health *= rate;
         enemy.maxHealth *= rate;
-        enemy.reward *= Math.max(1, rate / 2);
+        enemy.reward *= rate;
     }
 
     let choice = Math.floor(Math.random() * 4);
@@ -752,6 +748,40 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
+function drawScene() {
+    let chunkSize = 20;
+    let chunkCountX = canvas.width / chunkSize;
+    let chunkCountY = canvas.height / chunkSize;
+    for (let x = 0; x < chunkCountX; x++) {
+        for (let y = 0; y < chunkCountY; y++) {
+            let chunkPositionX = chunkSize * x + viewport.x;
+            let chunkPositionY = chunkSize * y + viewport.y;
+
+            let distanceFromCenter = Math.sqrt(Math.pow(chunkPositionX - canvas.width / 2, 2) + Math.pow(chunkPositionY - canvas.height / 2, 2)) / 20;
+
+            const white = [255, 255, 255];
+            const red = [255, 20, 20];
+            const black = [0, 0, 0];
+
+            let t = Math.min(distanceFromCenter / (canvas.width / 2), 1);
+
+            let r = white[0] * (1 - t) + red[0] * t;
+            let g = white[1] * (1 - t) + red[1] * t;
+            let b = white[2] * (1 - t) + red[2] * t;
+
+            if (distanceFromCenter > canvas.width / 2) {
+                t = Math.min((distanceFromCenter - canvas.width / 2) / (canvas.width / 2), 1);
+                r = red[0] * (1 - t) + black[0] * t;
+                g = red[1] * (1 - t) + black[1] * t;
+                b = red[2] * (1 - t) + black[2] * t;
+            }
+
+            ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+            ctx.fillRect(chunkPositionX - viewport.x, chunkPositionY - viewport.y, chunkSize, chunkSize);
+        }
+    }
+}
+
 function drawUI() {
     // ctx.strokeStyle = 'black';
     // ctx.strokeRect(viewport.x, viewport.y, canvas.width + viewport.x, canvas.height + viewport.y);
@@ -952,6 +982,8 @@ function render() {
 
     // draw entities
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // draw scene
+    drawScene();
 
     ctx.fillStyle = 'blue';
     ctx.fillRect(player.x - viewport.x, player.y - viewport.y, player.sx, player.sy);
