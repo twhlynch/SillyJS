@@ -333,7 +333,6 @@ function createNewEnemy() {
     return enemy;
 }
 function createTurret(num) {
-    console.log("createTurret", num);
     if (num == 2) {
         if (currency >= 100) {
             let turret = new ShotgunTurret();
@@ -469,7 +468,6 @@ for (i = 0; i < 8; i++) {
             buyEnemy();
         }
     } else {
-        console.log("createTurret", i+1);
         menuButton.callback = (function(index) {
             return function() {
                 createTurret(index + 1);
@@ -498,6 +496,7 @@ menuButtons[6].bottom = "$1500";
 menuButtons[7].bottom = "$20";
 
 // if on mobile
+let mobileButtons = [];
 if (( 'ontouchstart' in window ) || 
     ( navigator.maxTouchPoints > 0 ) || 
     ( navigator.msMaxTouchPoints > 0 )) {
@@ -506,15 +505,18 @@ if (( 'ontouchstart' in window ) ||
     const downButton = new Button("v");
     const leftButton = new Button("<");
     const rightButton = new Button(">");
-    const buttons = [upButton, downButton, leftButton, rightButton];
-    for (let i = 0; i < buttons.length; i++) {
-        buttons[i].y = canvas.height - 100;
+    const stopButton = new Button("x");
+    mobileButtons = [upButton, downButton, leftButton, rightButton, stopButton];
+    for (let i = 0; i < mobileButtons.length; i++) {
+        mobileButtons[i].y = canvas.height - 160;
     }
     upButton.x = canvas.width - 160;
     upButton.y -= 60;
+    downButton.y += 60;
     downButton.x = canvas.width - 160;
     leftButton.x = canvas.width - 220;
     rightButton.x = canvas.width - 100;
+    stopButton.x = canvas.width - 160;
 
     upButton.callback = () => {
         playerVelocity.up = player.speed;
@@ -540,21 +542,23 @@ if (( 'ontouchstart' in window ) ||
     rightButton.off = () => {
         playerVelocity.right = 0;
     };
-    menuButtons.push(downButton);
-    menuButtons.push(upButton);
-    menuButtons.push(leftButton);
-    menuButtons.push(rightButton);
+    stopButton.callback = () => {
+        playerVelocity.left = 0;
+        playerVelocity.right = 0;
+        playerVelocity.up = 0;
+        playerVelocity.down = 0;
+    };
     document.addEventListener("touchstart", function(e) {
-        for (let i = 0; i < buttons.length; i++) {
-            if (buttons[i].isClicked(e.clientX, e.clientY)) {
-                buttons[i].click();
+        for (let i = 0; i < mobileButtons.length; i++) {
+            if (mobileButtons[i].isClicked(e.clientX, e.clientY)) {
+                mobileButtons[i].click();
             }
         }
     });
     document.addEventListener("touchend", function(e) {
-        for (let i = 0; i < buttons.length; i++) {
-            if (buttons[i].isClicked(e.changedTouches[0].clientX, e.changedTouches[0].clientY)) {
-                buttons[i].unclick();
+        for (let i = 0; i < mobileButtons.length; i++) {
+            if (mobileButtons[i].isClicked(e.changedTouches[0].clientX, e.changedTouches[0].clientY)) {
+                mobileButtons[i].unclick();
             }
         }
     });
@@ -583,6 +587,13 @@ function handleClick(e) {
         const button = menuButtons[i];
         if (button.isClicked(e.clientX, e.clientY)) {
             button.click();
+            clickedButton = true;
+            break;
+        }
+    }
+    for (let i = 0; i < mobileButtons.length; i++) {
+        const button = mobileButtons[i];
+        if (button.isClicked(e.clientX, e.clientY)) {
             clickedButton = true;
             break;
         }
@@ -763,6 +774,9 @@ function drawUI() {
     ctx.fillText(`FPS: ${Math.round(fps)}`, 10, 20);
 
     menuButtons.forEach((button) => {
+        button.draw();
+    });
+    mobileButtons.forEach((button) => {
         button.draw();
     });
     currencySprite.draw();
