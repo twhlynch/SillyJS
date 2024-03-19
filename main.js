@@ -313,7 +313,7 @@ function createNewEnemy() {
         enemy.reward += enemy.reward * rate / 10;
     }
 
-    if (Math.random() < 1/50 && rate > 5) {
+    if (Math.random() < 1/(10 * enemies.length) && rate > 5) {
         enemy = new Boss();
         enemy.health *= rate;
         enemy.maxHealth *= rate;
