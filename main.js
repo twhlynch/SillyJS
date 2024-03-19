@@ -299,6 +299,7 @@ let healthPacks = [];
 let projectiles = [];
 let turrets = [];
 let currency = 10;
+let kills = 0;
 
 function createNewEnemy() {
     let enemy = new Enemy();
@@ -824,7 +825,7 @@ function drawUI() {
     turretSprite.draw();
     ctx.font = "bold 20px sans-serif";
     ctx.fillText(currency, 90, canvas.height - 138);
-    ctx.fillText(`${enemies.length} | ${fighters.length}`, 90, canvas.height - 178);
+    ctx.fillText(`${enemies.length} & ${fighters.length}  (${kills} kills)`, 90, canvas.height - 178);
     ctx.fillText(turrets.length, 90, canvas.height - 218);
     
     playerHealthBar.value = player.health;
@@ -995,6 +996,7 @@ function render() {
             enemies.splice(i, 1);
             let newEnemy = createNewEnemy();
             enemies.push(newEnemy);
+            kills++;
         }
         if (enemies[i].x < viewport.x - 20) {
             let newEnemy = createNewEnemy();
@@ -1047,7 +1049,8 @@ function render() {
         let fighter = fighters[i];
         if (fighter.isDestroyed()) {
             fighters.splice(i, 1);
-        }else if (fighter.x < viewport.x - 20) {
+            kills++;
+        } else if (fighter.x < viewport.x - 20) {
             let newEnemy = createNewEnemy();
             fighter.x = newEnemy.x;
             fighter.y = newEnemy.y;
