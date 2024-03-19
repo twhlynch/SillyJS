@@ -115,9 +115,11 @@ class Turret extends Entity {
         this.health = 200;
         this.maxHealth = 200;
         this.firePower = 10;
+        this.projectileSize = 5;
         this.fireRate = 0.5;
         this.lastFire = 0.00;
         this.projectileCount = 1;
+        this.projectileSpeed = 10;
         this.type = "turret";
     }
     shootAt(x, y) {
@@ -126,15 +128,12 @@ class Turret extends Entity {
             let projectile = new Projectile();
             projectile.maxHealth = this.firePower;
             projectile.health = projectile.firePower;
+            projectile.speed = this.projectileSpeed;
 
             projectile.x = this.x + this.sx/2;
             projectile.y = this.y + this.sy/2;
-            projectile.sx = this.firePower/5;
-            projectile.sy = this.firePower/5;
-            if (this.type == "railgun") {
-                projectile.sx = 10;
-                projectile.sy = 10;
-            }
+            projectile.sx = this.projectileSize;
+            projectile.sy = this.projectileSize;
             
             let angle = Math.atan2(y - this.y, x - this.x) + i / Math.PI / 4;
             projectile.vx = Math.cos(angle);
@@ -166,6 +165,7 @@ class PulseTurret extends Turret {
         super();
         this.fireRate = 5; // 1 per 5 seconds
         this.firePower = 5;
+        this.projectileSize = 2;
         this.projectileCount = 2000;
         this.type = "pulse";
     }
@@ -175,7 +175,9 @@ class RailgunTurret extends Turret {
         super();
         this.fireRate = 5; // 1 per 5 seconds
         this.firePower = 1000;
+        this.projectileSize = 10;
         this.projectileCount = 1;
+        this.projectileSpeed = 20;
         this.type = "railgun";
     }
 }
@@ -184,6 +186,7 @@ class CannonTurret extends Turret {
         super();
         this.fireRate = 3; // 1 per 3 seconds
         this.firePower = 100;
+        this.projectileSize = 20;
         this.type = "cannon";
     }
 }
@@ -191,7 +194,19 @@ class SpamTurret extends Turret {
     constructor() {
         super();
         this.fireRate = 0.01; // 10 per second
+        this.firePower /= 2;
+        this.projectileSize /= 2;
         this.type = "spam";
+    }
+
+}
+class InstaTurret extends Turret {
+    constructor() {
+        super();
+        this.firePower /= 2;
+        this.projectileSize /= 2;
+        this.projectileSpeed = 30;
+        this.type = "insta";
     }
 
 }
@@ -284,7 +299,13 @@ class Fighter extends Enemy {
         this.health *= 2;
     }
 }
-
+class Healthpack extends Entity {
+    constructor() {
+        super();
+        this.sx = 15;
+        this.sy = 15;
+    }
+}
 
 const canvas = document.getElementById('renderer');
 canvas.width = window.innerWidth;
@@ -402,6 +423,15 @@ function createTurret(num) {
             turrets.push(turret);
             currency -= 1500;
         }
+    } else if (num == 8) {
+        if (currency >= 400) {
+            let turret = new InstaTurret();
+            turret.x = player.x + player.sx/2 - turret.sx/2;
+            turret.y = player.y + player.sy/2 - turret.sy/2;
+
+            turrets.push(turret);
+            currency -= 400;
+        }
     }
 }
 function buyEnemy() {
@@ -466,9 +496,9 @@ turretSprite.sx = 30;
 turretSprite.sy = 30;
 
 let menuButtons = [];
-for (i = 0; i < 8; i++) {
+for (i = 0; i < 9; i++) {
     let menuButton = new Button((i+1).toString());
-    if (i == 7) {
+    if (i == 8) {
         menuButton.text = "+";
         menuButton.callback = () => {
             buyEnemy();
@@ -491,7 +521,8 @@ menuButtons[3].top = "Spam";
 menuButtons[4].top = "Spider";
 menuButtons[5].top = "Pulse";
 menuButtons[6].top = "Railgun";
-menuButtons[7].top = "Spawn";
+menuButtons[7].top = "Insta";
+menuButtons[8].top = "Spawn";
 menuButtons[0].bottom = "$50";
 menuButtons[1].bottom = "$100";
 menuButtons[2].bottom = "$150";
@@ -499,7 +530,8 @@ menuButtons[3].bottom = "$500";
 menuButtons[4].bottom = "$800";
 menuButtons[5].bottom = "$1500";
 menuButtons[6].bottom = "$1500";
-menuButtons[7].bottom = "$20";
+menuButtons[7].bottom = "$400";
+menuButtons[8].bottom = "$20";
 
 // if on mobile
 let mobileButtons = [];
@@ -566,11 +598,9 @@ for (let i = 0; i < 5; i++) {
 }
 
 for (let i = 0; i < 5; i++) {
-    let healthPack = new Entity();
+    let healthPack = new Healthpack();
     healthPack.x = Math.random() * canvas.width + viewport.x;
     healthPack.y = Math.random() * canvas.height + viewport.y;
-    healthPack.sx = 15;
-    healthPack.sy = 15;
     healthPacks.push(healthPack);
 }
 
@@ -734,12 +764,16 @@ document.addEventListener('keydown', function(event) {
                 newTurret = new PulseTurret();
             } else if (data.turrets[i].type == "railgun") {
                 newTurret = new RailgunTurret();
+            } else if (data.turrets[i].type == "insta") {
+                newTurret = new InstaTurret();
             }
             newTurret.x = data.turrets[i].x;
             newTurret.y = data.turrets[i].y;
             newTurret.health = data.turrets[i].health;
             newTurret.maxHealth = data.turrets[i].maxHealth;
             newTurret.firePower = data.turrets[i].firePower;
+            newTurret.projectileSize = data.turrets[i].projectileSize;
+            newTurret.projectileSpeed = data.turrets[i].projectileSpeed;
             newTurret.fireRate = data.turrets[i].fireRate;
             newTurret.lastFire = data.turrets[i].lastFire;
             newTurret.projectileCount = data.turrets[i].projectileCount;
@@ -777,7 +811,7 @@ document.addEventListener('keydown', function(event) {
         player.maxHealth = data.player.maxHealth;
         player.speed = data.player.speed;
 
-    } else if (['1', '2', '3', '4', '5', '6', '7'].includes(event.key)) {
+    } else if (['1', '2', '3', '4', '5', '6', '7', '8'].includes(event.key)) {
         createTurret(parseInt(event.key));
     }
 });
@@ -911,15 +945,6 @@ function render() {
                 let closestDistance = Infinity;
                 if (turret.type == "spider" || turret.type == "pulse") {
                     closestEnemy = new Enemy(turret.x, turret.y);
-                } else if (turret.type == "spam") {
-                    for (let j = 0; j < enemies.length; j++) {
-                        let enemy = enemies[j];
-                        let distance = Math.sqrt(Math.pow(enemy.x - turret.x, 2) + Math.pow(enemy.y - turret.y, 2));
-                        if (distance < closestDistance) {
-                            closestDistance = distance;
-                            closestEnemy = enemy;
-                        }
-                    }
                 } else {
                     for (let j = 0; j < enemies.length; j++) {
                         let enemy = enemies[j];
