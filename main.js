@@ -363,7 +363,7 @@ function createNewEnemy() {
 function createTurret(num) {
     if (num == 2) {
         let price = 100;
-        if (currency >= 100*pricing) {
+        if (currency >= price*pricing) {
             let turret = new ShotgunTurret();
             turret.x = player.x + player.sx/2 - turret.sx/2;
             turret.y = player.y + player.sy/2 - turret.sy/2;
@@ -374,7 +374,7 @@ function createTurret(num) {
         }
     } else if (num == 1) {
         let price = 50;
-        if (currency >= 50*pricing) {
+        if (currency >= price*pricing) {
             let turret = new Turret();
             turret.x = player.x + player.sx/2 - turret.sx/2;
             turret.y = player.y + player.sy/2 - turret.sy/2;
@@ -385,7 +385,7 @@ function createTurret(num) {
         }
     } else if (num == 3) {
         let price = 150;
-        if (currency >= 150*pricing) {
+        if (currency >= price*pricing) {
             let turret = new CannonTurret();
             turret.x = player.x + player.sx/2 - turret.sx/2;
             turret.y = player.y + player.sy/2 - turret.sy/2;
@@ -396,7 +396,7 @@ function createTurret(num) {
         }
     } else if (num == 4) {
         let price = 500;
-        if (currency >= 500*pricing) {
+        if (currency >= price*pricing) {
             let turret = new SpamTurret();
             turret.x = player.x + player.sx/2 - turret.sx/2;
             turret.y = player.y + player.sy/2 - turret.sy/2;
@@ -407,7 +407,7 @@ function createTurret(num) {
         }
     } else if (num == 5) {
         let price = 800;
-        if (currency >= 800*pricing) {
+        if (currency >= price*pricing) {
             let turret = new SpiderTurret();
             turret.x = player.x + player.sx/2 - turret.sx/2;
             turret.y = player.y + player.sy/2 - turret.sy/2;
@@ -418,7 +418,7 @@ function createTurret(num) {
         }
     } else if (num == 6) {
         let price = 1500;
-        if (currency >= 1500*pricing) {
+        if (currency >= price*pricing) {
             let turret = new PulseTurret();
             turret.x = player.x + player.sx/2 - turret.sx/2;
             turret.y = player.y + player.sy/2 - turret.sy/2;
@@ -429,7 +429,7 @@ function createTurret(num) {
         }
     } else if (num == 7) {
         let price = 1500;
-        if (currency >= 1500*pricing) {
+        if (currency >= price*pricing) {
             let turret = new RailgunTurret();
             turret.x = player.x + player.sx/2 - turret.sx/2;
             turret.y = player.y + player.sy/2 - turret.sy/2;
@@ -440,7 +440,7 @@ function createTurret(num) {
         }
     } else if (num == 8) {
         let price = 400;
-        if (currency >= 400*pricing) {
+        if (currency >= price*pricing) {
             let turret = new InstaTurret();
             turret.x = player.x + player.sx/2 - turret.sx/2;
             turret.y = player.y + player.sy/2 - turret.sy/2;
