@@ -1,11 +1,3 @@
-const width = 100;
-const height = 100;
-const persistence = 0.5;
-const octaves = 4;
-
-const perlinNoise = generatePerlinNoise(width, height, persistence, octaves);
-// TODO: make it loop
-
 class Object {
     constructor() {
         this.x = 0;
@@ -446,6 +438,21 @@ canvas.imageSmoothingEnabled = false;
 const ctx = canvas.getContext('2d');
 let viewport = {"x": 0, "y": 0};
 
+const chunkSize = 10;
+const width = Math.ceil(canvas.width / chunkSize) * 10;
+const height = Math.ceil(canvas.height / chunkSize) * 10;
+const persistence = 0.7;
+const octaves = 6;
+
+let perlinNoise = generatePerlinNoise(width, height, persistence, octaves);
+// append flipped array to each array then append flipped perlinNoise to istelf
+const perlinNoiseFlippedX = perlinNoise.map((row) => row.slice().reverse());
+for (let i = 0; i < perlinNoise.length; i++) {
+    perlinNoise[i] = perlinNoise[i].concat(perlinNoiseFlippedX[i]);
+}
+const perlinNoiseFlippedY = perlinNoise.slice().reverse();
+perlinNoise = perlinNoise.concat(perlinNoiseFlippedY);
+
 let enemies = [];
 let fighters = [];
 let healthPacks = [];
@@ -518,8 +525,8 @@ function shoot() {
         let projectile = new Projectile();
         projectile.x = player.x + player.sx/2;
         projectile.y = player.y + player.sy/2;
-        projectile.sx = 2;
-        projectile.sy = 2;
+        projectile.sx = 4;
+        projectile.sy = 4;
         
         let angle = Math.atan2(mousePosition.y - player.y, mousePosition.x - player.x);
         projectile.vx = Math.cos(angle);
@@ -891,7 +898,6 @@ document.addEventListener('keydown', function(event) {
 });
 
 function drawScene() {
-    let chunkSize = 10;
     let chunkCountX = canvas.width / chunkSize;
     let chunkCountY = canvas.height / chunkSize;
     for (let x = 0; x < chunkCountX; x++) {
@@ -921,9 +927,9 @@ function drawScene() {
                 b = red[2] * (1 - t) + black[2] * t;
             }
 
-            r *= perlinValue;
-            g *= perlinValue;
-            b *= perlinValue;
+            r *= 1 - (perlinValue / 2);
+            g *= 1 - (perlinValue / 2);
+            b *= 1 - (perlinValue / 2);
 
             ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
             ctx.fillRect(chunkPositionX - viewport.x, chunkPositionY - viewport.y, chunkSize, chunkSize);
