@@ -1,3 +1,11 @@
+const width = 100;
+const height = 100;
+const persistence = 0.5;
+const octaves = 4;
+
+const perlinNoise = generatePerlinNoise(width, height, persistence, octaves);
+// TODO: make it loop
+
 class Object {
     constructor() {
         this.x = 0;
@@ -883,13 +891,16 @@ document.addEventListener('keydown', function(event) {
 });
 
 function drawScene() {
-    let chunkSize = 20;
+    let chunkSize = 10;
     let chunkCountX = canvas.width / chunkSize;
     let chunkCountY = canvas.height / chunkSize;
     for (let x = 0; x < chunkCountX; x++) {
         for (let y = 0; y < chunkCountY; y++) {
             let chunkPositionX = chunkSize * x + viewport.x;
             let chunkPositionY = chunkSize * y + viewport.y;
+            let perlinPositionX = Math.floor(Math.abs(chunkPositionX / chunkSize) % perlinNoise.length);
+            let perlinPositionY = Math.floor(Math.abs(chunkPositionY / chunkSize) % perlinNoise[0].length);
+            let perlinValue = perlinNoise[perlinPositionX][perlinPositionY];
 
             let distanceFromCenter = Math.sqrt(Math.pow(chunkPositionX - canvas.width / 2, 2) + Math.pow(chunkPositionY - canvas.height / 2, 2)) / 20;
 
@@ -909,6 +920,10 @@ function drawScene() {
                 g = red[1] * (1 - t) + black[1] * t;
                 b = red[2] * (1 - t) + black[2] * t;
             }
+
+            r *= perlinValue;
+            g *= perlinValue;
+            b *= perlinValue;
 
             ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
             ctx.fillRect(chunkPositionX - viewport.x, chunkPositionY - viewport.y, chunkSize, chunkSize);
