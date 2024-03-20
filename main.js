@@ -337,7 +337,16 @@ class Fire extends Entity {
         this.sprite.src = "sprites/entities/fire_1.png";
         this.frames = [
             "sprites/entities/fire_1.png",
+            "sprites/entities/fire_1.png",
+            "sprites/entities/fire_1.png",
+            "sprites/entities/fire_1.png",
             "sprites/entities/fire_2.png",
+            "sprites/entities/fire_2.png",
+            "sprites/entities/fire_2.png",
+            "sprites/entities/fire_2.png",
+            "sprites/entities/fire_3.png",
+            "sprites/entities/fire_3.png",
+            "sprites/entities/fire_3.png",
             "sprites/entities/fire_3.png",
         ];
         this.sprites = [];
@@ -348,9 +357,9 @@ class Fire extends Entity {
         this.frame = 0;
     }
     draw() {
-        ctx.drawImage(this.sprites[Math.floor(this.frame/5)], this.x, this.y, this.sx, this.sy);
+        ctx.drawImage(this.sprites[this.frame], this.x - viewport.x, this.y - viewport.y, this.sx, this.sy);
         this.frame++;
-        if (this.frame >= this.frames.length * 5) {
+        if (this.frame >= this.frames.length) {
             this.frame = 0;
         }
     }
