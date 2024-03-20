@@ -310,6 +310,49 @@ class Healthpack extends Entity {
         super();
         this.sx = 15;
         this.sy = 15;
+        this.sprite.src = "sprites/entities/healthpack.png";
+    }
+}
+class Hazard extends Entity {
+    constructor() {
+        super();
+        this.damage = 10;
+    }
+}
+class Landmine extends Entity {
+    constructor() {
+        super();
+        this.sx = 15;
+        this.sy = 15;
+        this.damage = 30;
+        this.sprite.src = "sprites/entities/mine.png";
+    }
+}
+class Fire extends Entity {
+    constructor() {
+        super();
+        this.sx = 30;
+        this.sy = 30;
+        this.damage = 10;
+        this.sprite.src = "sprites/entities/fire_1.png";
+        this.frames = [
+            "sprites/entities/fire_1.png",
+            "sprites/entities/fire_2.png",
+            "sprites/entities/fire_3.png",
+        ];
+        this.sprites = [];
+        for (let i = 0; i < this.frames.length; i++) {
+            this.sprites.push(new Image());
+            this.sprites[i].src = this.frames[i];
+        }
+        this.frame = 0;
+    }
+    draw() {
+        ctx.drawImage(this.sprites[Math.floor(this.frame/5)], this.x, this.y, this.sx, this.sy);
+        this.frame++;
+        if (this.frame >= this.frames.length * 5) {
+            this.frame = 0;
+        }
     }
 }
 
@@ -375,6 +418,7 @@ let viewport = {"x": 0, "y": 0};
 let enemies = [];
 let fighters = [];
 let healthPacks = [];
+let hazards = [];
 let projectiles = [];
 let turrets = [];
 let currency = 10;
@@ -498,6 +542,8 @@ for (i = 0; i < turretShop.length + 1; i++) {
     let menuButton = new Button((i+1).toString());
     if (i == turretShop.length) {
         menuButton.text = "+";
+        menuButton.top = "Enemy";
+        menuButton.bottom = "$20";
         menuButton.callback = () => {
             buyEnemy();
         }
@@ -584,6 +630,16 @@ for (let i = 0; i < 5; i++) {
     healthPack.x = Math.random() * canvas.width + viewport.x;
     healthPack.y = Math.random() * canvas.height + viewport.y;
     healthPacks.push(healthPack);
+
+    let landmine = new Landmine();
+    landmine.x = Math.random() * canvas.width + viewport.x;
+    landmine.y = Math.random() * canvas.height + viewport.y;
+    hazards.push(landmine);
+
+    let fire = new Fire();
+    fire.x = Math.random() * canvas.width + viewport.x;
+    fire.y = Math.random() * canvas.height + viewport.y;
+    hazards.push(fire);
 }
 
 function setMousePosition(e) {
@@ -680,6 +736,7 @@ document.addEventListener('keydown', function(event) {
         localStorage.setItem('data', JSON.stringify({
             "enemies": enemies,
             "healthPacks": healthPacks,
+            "hazards": hazards,
             "projectiles": projectiles,
             "turrets": turrets,
             "player": player,
@@ -715,6 +772,22 @@ document.addEventListener('keydown', function(event) {
             newHealthPack.sx = data.healthPacks[i].sx;
             newHealthPack.sy = data.healthPacks[i].sy;
             healthPacks.push(newHealthPack);
+        }
+        hazards = [];
+        for (let i = 0; i < data.hazards.length; i++) {
+            let newHazard = new Hazard();
+            if (data.hazards[i]?.frames?.length) {
+                newHazard.frames = data.hazards[i].frames;
+                newHazard.frame = 0;
+                newHazard = new Fire();
+            }
+            newHazard.x = data.hazards[i].x;
+            newHazard.y = data.hazards[i].y;
+            newHazard.sx = data.hazards[i].sx;
+            newHazard.sy = data.hazards[i].sy;
+            newHazard.damage = data.hazards[i].damage;
+            newHazard.sprite.src = data.hazards[i].sprite.src;
+            hazards.push(newHazard);
         }
         projectiles = [];
         for (let i = 0; i < data.projectiles.length; i++) {
@@ -917,7 +990,7 @@ function render() {
 
                 let closestEnemy = null;
                 let closestDistance = Infinity;
-                if (turret.target) {
+                if (!turret.target) {
                     closestEnemy = new Enemy(turret.x, turret.y);
                 } else {
                     for (let j = 0; j < enemies.length; j++) {
@@ -986,6 +1059,31 @@ function render() {
             currency += 5;
             healthPack.x = Math.random() * canvas.width + viewport.x;
             healthPack.y = Math.random() * canvas.height + viewport.y;
+        }
+    }
+
+    for (let i = 0; i < hazards.length; i++) {
+        let hazard = hazards[i];
+        if (player.isColliding(hazard)) {
+            player.damage(hazard.damage);
+            hazard.x = Math.random() * canvas.width + viewport.x;
+            hazard.y = Math.random() * canvas.height + viewport.y;
+        }
+        for (let j = 0; j < enemies.length; j++) {
+            let enemy = enemies[j];
+            if (enemy.isColliding(hazard)) {
+                enemy.damage(hazard.damage);
+                hazard.x = Math.random() * canvas.width + viewport.x;
+                hazard.y = Math.random() * canvas.height + viewport.y;
+            }
+        }
+        for (let j = 0; j < fighters.length; j++) {
+            let fighter = fighters[j];
+            if (fighter.isColliding(hazard)) {
+                fighter.damage(hazard.damage);
+                hazard.x = Math.random() * canvas.width + viewport.x;
+                hazard.y = Math.random() * canvas.height + viewport.y;
+            }
         }
     }
 
@@ -1065,6 +1163,15 @@ function render() {
         }
     }
 
+    for (let i = 0; i < hazards.length; i++) {
+        let hazard = hazards[i];
+        if (hazard.x < viewport.x - hazard.sx || hazard.x > viewport.x + canvas.width || 
+            hazard.y < viewport.y - hazard.sy || hazard.y > viewport.y + canvas.height) {
+            hazard.x = Math.random() * canvas.width + viewport.x;
+            hazard.y = Math.random() * canvas.height + viewport.y;
+        }
+    }
+
     for (let i = 0; i < turrets.length; i++) {
         let turret = turrets[i];
         if (turret.isDestroyed()) {
@@ -1104,9 +1211,12 @@ function render() {
 
     player.draw();
 
-    ctx.fillStyle = 'green';
     for (let i = 0; i < healthPacks.length; i++) {
-        ctx.fillRect(healthPacks[i].x - viewport.x, healthPacks[i].y - viewport.y, healthPacks[i].sx, healthPacks[i].sy);
+        healthPacks[i].draw();
+    }
+
+    for (let i = 0; i < hazards.length; i++) {
+        hazards[i].draw();
     }
 
     for (let i = 0; i < enemies.length; i++) {
@@ -1116,7 +1226,6 @@ function render() {
         fighters[i].draw();
     }
     
-    ctx.fillStyle = 'black';
     for (let i = 0; i < turrets.length; i++) {
         let turret = turrets[i];
         turret.draw();
