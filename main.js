@@ -180,6 +180,7 @@ class SpiderTurret extends Turret {
         super();
         this.fireRate = 1; // 1 per second
         this.projectileCount = 79;
+        this.gun.src = "sprites/turrets/top_spider.png";
         this.type = "spider";
     }
 }
@@ -222,7 +223,6 @@ class InstaTurret extends Turret {
         this.projectileSpeed = 30;
         this.type = "insta";
     }
-
 }
 class UIElement extends Object {
     constructor() {
