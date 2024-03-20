@@ -128,7 +128,10 @@ class Turret extends Entity {
         this.projectileCount = 1;
         this.projectileSpeed = 10;
         this.type = "turret";
-        this.sprite.src = "sprites/turrets/sentry_assault_base.png";
+        this.sprite.src = "sprites/turrets/base_default.png";
+        this.gun = new Image();
+        this.gun.src = "sprites/turrets/top_default.png";
+        this.angle = 0;
     }
     shootAt(x, y) {
         let projectiles = [];
@@ -144,6 +147,7 @@ class Turret extends Entity {
             projectile.sy = this.projectileSize;
             
             let angle = Math.atan2(y - this.y, x - this.x) + i / Math.PI / 4;
+            this.angle = angle;
             projectile.vx = Math.cos(angle);
             projectile.vy = Math.sin(angle);
 
@@ -154,12 +158,20 @@ class Turret extends Entity {
     draw() {
         ctx.drawImage(this.sprite, this.x - viewport.x - this.sx/2, this.y - viewport.y - this.sy/2, this.sx*2, this.sy*2);
     }
+    drawGun() {
+        ctx.save();
+        ctx.translate(this.x - viewport.x + this.sx/2, this.y - viewport.y + this.sy/2);
+        ctx.rotate(this.angle);
+        ctx.drawImage(this.gun, -this.sx, -this.sy, this.sx*2, this.sy*2);
+        ctx.restore();
+    }
 }
 class ShotgunTurret extends Turret {
     constructor() {
         super();
         this.fireRate = 1; // 1 per second
         this.projectileCount = 3;
+        this.gun.src = "sprites/turrets/top_shotgun.png";
         this.type = "shotgun";
     }
 }
@@ -188,6 +200,7 @@ class CannonTurret extends Turret {
         this.fireRate = 3; // 1 per 3 seconds
         this.firePower = 100;
         this.projectileSize = 20;
+        this.gun.src = "sprites/turrets/top_cannon.png";
         this.type = "cannon";
     }
 }
@@ -1160,6 +1173,7 @@ function render() {
     for (let i = 0; i < turrets.length; i++) {
         let turret = turrets[i];
         turret.draw();
+        turret.drawGun();
     }
 
     // draw projectiles
