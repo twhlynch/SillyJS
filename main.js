@@ -42,6 +42,7 @@ class Entity extends Object {
         this.maxHealth = 0;
         this.speed = 0;
         this.sprite = new Image();
+        this.angle = 0;
     }
     damage(amount) {
         this.health -= amount;
@@ -63,6 +64,7 @@ class Entity extends Object {
         let dy = this.y - y;
         let distance = Math.sqrt(dx * dx + dy * dy);
         let angle = Math.atan2(dy, dx);
+        this.angle = angle;
         if (distance > 0) {
             this.x -= Math.cos(angle) * this.speed;
             this.y -= Math.sin(angle) * this.speed;
@@ -90,6 +92,18 @@ class Enemy extends Entity {
         this.sy = 20;
         this.speed = 0.5;
         this.sprite.src = "sprites/entities/enemy.png";
+        this.angle = 0;
+    }
+    draw() {
+        // flip if left facing
+        ctx.save();
+        ctx.translate(this.x - viewport.x, this.y - viewport.y);
+        if (this.angle < Math.PI/2 && this.angle > -Math.PI/2) {
+            ctx.scale(-1,1);
+            ctx.translate(-this.sx, 0);
+        }
+        ctx.drawImage(this.sprite, 0, 0, this.sx, this.sy);
+        ctx.restore();
     }
 }
 class Boss extends Enemy {
