@@ -132,6 +132,7 @@ class Turret extends Entity {
         this.gun = new Image();
         this.gun.src = "sprites/turrets/top_default.png";
         this.angle = 0;
+        this.target = true;
     }
     shootAt(x, y) {
         let projectiles = [];
@@ -181,6 +182,7 @@ class SpiderTurret extends Turret {
         this.fireRate = 1; // 1 per second
         this.projectileCount = 79;
         this.gun.src = "sprites/turrets/top_spider.png";
+        this.target = false;
         this.type = "spider";
     }
 }
@@ -212,16 +214,6 @@ class SpamTurret extends Turret {
         this.firePower /= 2;
         this.projectileSize /= 2;
         this.type = "spam";
-    }
-
-}
-class InstaTurret extends Turret {
-    constructor() {
-        super();
-        this.firePower /= 2;
-        this.projectileSize /= 2;
-        this.projectileSpeed = 30;
-        this.type = "insta";
     }
 }
 class UIElement extends Object {
@@ -321,6 +313,58 @@ class Healthpack extends Entity {
     }
 }
 
+const turretShop = [
+    {
+        name: "Turret",
+        price: 50,
+    },
+    {
+        name: "Shotgun",
+        price: 100,
+    },
+    {
+        name: "Cannon",
+        price: 150,
+    },
+    {
+        name: "Spam",
+        price: 500,
+    },
+    {
+        name: "Spider",
+        price: 800,
+    },
+    {
+        name: "Railgun",
+        price: 1500,
+    }
+]
+function getTurretFromI(i) {
+    switch (i) {
+        case 0:
+            return new Turret();
+            break;
+        case 1:
+            return new ShotgunTurret();
+            break;
+        case 2:
+            return new CannonTurret();
+            break;
+        case 3:
+            return new SpamTurret();
+            break;
+        case 4:
+            return new SpiderTurret();
+            break;
+        case 5:
+            return new RailgunTurret();
+            break;
+        default:
+            return new Turret();
+            break;
+    }
+}
+
 const canvas = document.getElementById('renderer');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -336,6 +380,7 @@ let turrets = [];
 let currency = 10;
 let kills = 0;
 let pricing = 1;
+let pricingIncrease = 0.1;
 
 function createNewEnemy() {
     let enemy = new Enemy();
@@ -374,84 +419,16 @@ function createNewEnemy() {
 
     return enemy;
 }
-function createTurret(num) {
-    if (num == 2) {
-        let price = 100;
-        if (currency >= price*pricing) {
-            let turret = new ShotgunTurret();
-            turret.x = player.x + player.sx/2 - turret.sx/2;
-            turret.y = player.y + player.sy/2 - turret.sy/2;
-
-            turrets.push(turret);
-            currency = (Math.round(currency*100) - Math.round(price*pricing*100))/100;
-            pricing = (Math.round(pricing*100) + Math.round(0.1*100))/100;
-        }
-    } else if (num == 1) {
-        let price = 50;
-        if (currency >= price*pricing) {
-            let turret = new Turret();
-            turret.x = player.x + player.sx/2 - turret.sx/2;
-            turret.y = player.y + player.sy/2 - turret.sy/2;
-
-            turrets.push(turret);
-            currency = (Math.round(currency*100) - Math.round(price*pricing*100))/100;
-            pricing = (Math.round(pricing*100) + Math.round(0.1*100))/100;
-        }
-    } else if (num == 3) {
-        let price = 150;
-        if (currency >= price*pricing) {
-            let turret = new CannonTurret();
-            turret.x = player.x + player.sx/2 - turret.sx/2;
-            turret.y = player.y + player.sy/2 - turret.sy/2;
-
-            turrets.push(turret);
-            currency = (Math.round(currency*100) - Math.round(price*pricing*100))/100;
-            pricing = (Math.round(pricing*100) + Math.round(0.1*100))/100;
-        }
-    } else if (num == 4) {
-        let price = 500;
-        if (currency >= price*pricing) {
-            let turret = new SpamTurret();
-            turret.x = player.x + player.sx/2 - turret.sx/2;
-            turret.y = player.y + player.sy/2 - turret.sy/2;
-
-            turrets.push(turret);
-            currency = (Math.round(currency*100) - Math.round(price*pricing*100))/100;
-            pricing = (Math.round(pricing*100) + Math.round(0.1*100))/100;
-        }
-    } else if (num == 5) {
-        let price = 800;
-        if (currency >= price*pricing) {
-            let turret = new SpiderTurret();
-            turret.x = player.x + player.sx/2 - turret.sx/2;
-            turret.y = player.y + player.sy/2 - turret.sy/2;
-
-            turrets.push(turret);
-            currency = (Math.round(currency*100) - Math.round(price*pricing*100))/100;
-            pricing = (Math.round(pricing*100) + Math.round(0.1*100))/100;
-        }
-    } else if (num == 6) {
-        let price = 1500;
-        if (currency >= price*pricing) {
-            let turret = new RailgunTurret();
-            turret.x = player.x + player.sx/2 - turret.sx/2;
-            turret.y = player.y + player.sy/2 - turret.sy/2;
-
-            turrets.push(turret);
-            currency = (Math.round(currency*100) - Math.round(price*pricing*100))/100;
-            pricing = (Math.round(pricing*100) + Math.round(0.1*100))/100;
-        }
-    } else if (num == 7) {
-        let price = 400;
-        if (currency >= price*pricing) {
-            let turret = new InstaTurret();
-            turret.x = player.x + player.sx/2 - turret.sx/2;
-            turret.y = player.y + player.sy/2 - turret.sy/2;
-
-            turrets.push(turret);
-            currency = (Math.round(currency*100) - Math.round(price*pricing*100))/100;
-            pricing = (Math.round(pricing*100) + Math.round(0.1*100))/100;
-        }
+function createTurret(i) {
+    let turretDetails = turretShop[i];
+    let turretPrice = turretDetails.price;
+    if (currency >= turretPrice * pricing) {
+        let turret = getTurretFromI(i);
+        turret.x = player.x + player.sx/2 - turret.sx/2;
+        turret.y = player.y + player.sy/2 - turret.sy/2;
+        turrets.push(turret);
+        currency = (Math.round(currency*100) - Math.round(turretPrice*pricing*100))/100;
+        pricing = (Math.round(pricing*100) + Math.round(pricingIncrease*100))/100;
     }
 }
 function buyEnemy() {
@@ -517,9 +494,9 @@ turretSprite.sx = 30;
 turretSprite.sy = 30;
 
 let menuButtons = [];
-for (i = 0; i < 8; i++) {
+for (i = 0; i < turretShop.length + 1; i++) {
     let menuButton = new Button((i+1).toString());
-    if (i == 7) {
+    if (i == turretShop.length) {
         menuButton.text = "+";
         menuButton.callback = () => {
             buyEnemy();
@@ -527,30 +504,16 @@ for (i = 0; i < 8; i++) {
     } else {
         menuButton.callback = (function(index) {
             return function() {
-                createTurret(index + 1);
+                createTurret(index);
             }
         })(i);
+        menuButton.top = turretShop[i].name;
+        menuButton.bottom = "$" + turretShop[i].price;
     }
     menuButton.x = 50 + i * 60;
     menuButton.y = canvas.height - 100;
     menuButtons.push(menuButton);
 }
-menuButtons[0].top = "Turret";
-menuButtons[1].top = "Shotgun";
-menuButtons[2].top = "Cannon";
-menuButtons[3].top = "Spam";
-menuButtons[4].top = "Spider";
-menuButtons[5].top = "Railgun";
-menuButtons[6].top = "Insta";
-menuButtons[7].top = "Spawn";
-menuButtons[0].bottom = "$50";
-menuButtons[1].bottom = "$100";
-menuButtons[2].bottom = "$150";
-menuButtons[3].bottom = "$500";
-menuButtons[4].bottom = "$800";
-menuButtons[5].bottom = "$1500";
-menuButtons[6].bottom = "$400";
-menuButtons[7].bottom = "$20";
 
 // if on mobile
 let mobileButtons = [];
@@ -769,22 +732,7 @@ document.addEventListener('keydown', function(event) {
         }
         turrets = [];
         for (let i = 0; i < data.turrets.length; i++) {
-            let newTurret;
-            if (data.turrets[i].type == "turret") {
-                newTurret = new Turret();
-            } else if (data.turrets[i].type == "shotgun") {
-                newTurret = new ShotgunTurret();
-            } else if (data.turrets[i].type == "cannon") {
-                newTurret = new CannonTurret();
-            } else if (data.turrets[i].type == "spam") {
-                newTurret = new SpamTurret();
-            } else if (data.turrets[i].type == "spider") {
-                newTurret = new SpiderTurret();
-            } else if (data.turrets[i].type == "railgun") {
-                newTurret = new RailgunTurret();
-            } else if (data.turrets[i].type == "insta") {
-                newTurret = new InstaTurret();
-            }
+            let newTurret = new Turret();
             newTurret.x = data.turrets[i].x;
             newTurret.y = data.turrets[i].y;
             newTurret.health = data.turrets[i].health;
@@ -795,6 +743,9 @@ document.addEventListener('keydown', function(event) {
             newTurret.fireRate = data.turrets[i].fireRate;
             newTurret.lastFire = data.turrets[i].lastFire;
             newTurret.projectileCount = data.turrets[i].projectileCount;
+            newTurret.sprite.src = data.turrets[i].sprite.src;
+            newTurret.gun.src = data.turrets[i].gun.src;
+            newTurret.target = data.turrets[i].target;
             turrets.push(newTurret);
         }
 
@@ -830,8 +781,8 @@ document.addEventListener('keydown', function(event) {
         player.maxHealth = data.player.maxHealth;
         player.speed = data.player.speed;
 
-    } else if (['1', '2', '3', '4', '5', '6', '7'].includes(event.key)) {
-        createTurret(parseInt(event.key));
+    } else if (parseInt(event.key) - 1 < turretShop.length) {
+        createTurret(parseInt(event.key) - 1);
     }
 });
 
@@ -886,13 +837,9 @@ function drawUI() {
     ctx.fillStyle = 'black';
     ctx.fillText(`FPS: ${Math.round(fps)}`, 10, 20);
 
-    menuButtons[0].bottom = "$"+(Math.round(50*pricing*100)/100);
-    menuButtons[1].bottom = "$"+(Math.round(100*pricing*100)/100);
-    menuButtons[2].bottom = "$"+(Math.round(150*pricing*100)/100);
-    menuButtons[3].bottom = "$"+(Math.round(500*pricing*100)/100);
-    menuButtons[4].bottom = "$"+(Math.round(800*pricing*100)/100);
-    menuButtons[5].bottom = "$"+(Math.round(1500*pricing*100)/100);
-    menuButtons[6].bottom = "$"+(Math.round(400*pricing*100)/100);
+    for (i = 0; i < turretShop.length; i++) {
+        menuButtons[i].bottom = "$"+(Math.round(turretShop[i].price*pricing*100)/100);
+    }
 
     menuButtons.forEach((button) => {
         button.draw();
@@ -970,7 +917,7 @@ function render() {
 
                 let closestEnemy = null;
                 let closestDistance = Infinity;
-                if (turret.type == "spider") {
+                if (turret.target) {
                     closestEnemy = new Enemy(turret.x, turret.y);
                 } else {
                     for (let j = 0; j < enemies.length; j++) {
