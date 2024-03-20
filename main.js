@@ -151,6 +151,9 @@ class Turret extends Entity {
         }
         return projectiles;
     }
+    draw() {
+        ctx.drawImage(this.sprite, this.x - viewport.x - this.sx/2, this.y - viewport.y - this.sy/2, this.sx*2, this.sy*2);
+    }
 }
 class ShotgunTurret extends Turret {
     constructor() {
