@@ -79,6 +79,8 @@ class Player extends Entity {
         super();
         this.health = 100;
         this.maxHealth = 100;
+        this.stamina = 100;
+        this.maxStamina = 100;
         this.sprite.src = "sprites/entities/player.png";
     }
 }
@@ -435,6 +437,17 @@ function getTurretFromI(i) {
     }
 }
 
+// UI
+const fpsElement = document.getElementById('fps');
+const healthElement = document.getElementById('health');
+const staminaElement = document.getElementById('stamina');
+const coinsElement = document.getElementById('coins');
+const enemiesElement = document.getElementById('enemies');
+const turretsElement = document.getElementById('turrets');
+const hotbarElement = document.getElementById('hotbar');
+const healthBarFill = document.getElementById('healthBarFill');
+const staminaBarFill = document.getElementById('staminaBarFill');
+
 const canvas = document.getElementById('renderer');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -443,6 +456,7 @@ const ctx = canvas.getContext('2d');
 let viewport = {"x": 0, "y": 0};
 
 const chunkSize = 10;
+/*
 const width = Math.ceil(canvas.width / chunkSize) * 10;
 const height = Math.ceil(canvas.height / chunkSize) * 10;
 const persistence = 0.7;
@@ -456,7 +470,7 @@ for (let i = 0; i < perlinNoise.length; i++) {
 }
 const perlinNoiseFlippedY = perlinNoise.slice().reverse();
 perlinNoise = perlinNoise.concat(perlinNoiseFlippedY);
-
+*/
 let enemies = [];
 let fighters = [];
 let healthPacks = [];
@@ -467,6 +481,10 @@ let currency = 10;
 let kills = 0;
 let pricing = 1;
 let pricingIncrease = 0.1;
+
+if (location.href.includes('localhost') || location.href.includes('127.0.0.1')) {
+    currency = 999999;
+}
 
 function createNewEnemy() {
     let enemy = new Enemy();
@@ -524,6 +542,24 @@ function buyEnemy() {
         currency -= 20;
     }
 }
+function buyMine() {
+    if (currency >= 20) {
+        let mine = new Landmine();
+        mine.x = Math.random() * canvas.width + viewport.x;
+        mine.y = Math.random() * canvas.height + viewport.y;
+        hazards.push(mine);
+        currency -= 20;
+    }
+}
+function buyMedkit() {
+    if (currency >= 200) {
+        let healthPack = new Healthpack();
+        healthPack.x = Math.random() * canvas.width + viewport.x;
+        healthPack.y = Math.random() * canvas.height + viewport.y;
+        healthPacks.push(healthPack);
+        currency -= 200;
+    }
+}
 function shoot() {
     if (currency >= 1) {
         let projectile = new Projectile();
@@ -562,105 +598,37 @@ let lastRender = performance.now();
 let frameCount = 0;
 let fps = 0;
 
-// asset loading
-let currencySprite = new Icon("sprites/UI/currency.png");
-let enemySprite = new Icon("sprites/UI/enemy.png");
-let turretSprite = new Icon("sprites/UI/turret.png");
-currencySprite.x = 50;
-currencySprite.y = canvas.height - 160;
-currencySprite.sx = 30;
-currencySprite.sy = 30;
-enemySprite.x = 50;
-enemySprite.y = canvas.height - 200;
-enemySprite.sx = 30;
-enemySprite.sy = 30;
-turretSprite.x = 50;
-turretSprite.y = canvas.height - 240;
-turretSprite.sx = 30;
-turretSprite.sy = 30;
-
 let menuButtons = [];
-for (i = 0; i < turretShop.length + 1; i++) {
-    let menuButton = new Button((i+1).toString());
-    if (i == turretShop.length) {
-        menuButton.text = "+";
-        menuButton.top = "Enemy";
-        menuButton.bottom = "$20";
-        menuButton.callback = () => {
-            buyEnemy();
+let menuButtonPrices = [];
+
+const buyEnemyElement = document.getElementById("buyEnemy");
+buyEnemyElement.onclick = () => {buyEnemy()};
+
+const buyMineElement = document.getElementById("buyMine");
+buyMineElement.onclick = () => {buyMine()};
+
+const buyMedkitElement = document.getElementById("buyMedkit");
+buyMedkitElement.onclick = () => {buyMedkit()};
+
+for (i = 0; i < turretShop.length; i++) {
+    let btn = document.createElement('button');
+    let name = document.createElement('span');
+    name.innerText = turretShop[i].name;
+    btn.appendChild(name);
+    let key = document.createElement('span')
+    key.innerText = i+1;
+    btn.appendChild(key);
+    let price = document.createElement('span')
+    price.innerText = "$" + turretShop[i].price;
+    btn.appendChild(price);
+    btn.addEventListener('click', (function(index) {
+        return function() {
+            createTurret(index);
         }
-    } else {
-        // menuButton = new IconButton(`sprites/UI/t${i+1}.png`);
-        menuButton.callback = (function(index) {
-            return function() {
-                createTurret(index);
-            }
-        })(i);
-        menuButton.top = turretShop[i].name;
-        menuButton.bottom = "$" + turretShop[i].price;
-    }
-    menuButton.x = 50 + i * 60;
-    menuButton.y = canvas.height - 100;
-    menuButtons.push(menuButton);
-}
-
-// if on mobile
-let mobileButtons = [];
-if (( 'ontouchstart' in window ) || 
-    ( navigator.maxTouchPoints > 0 ) || 
-    ( navigator.msMaxTouchPoints > 0 )) {
-    // mobile UI
-    const upButton = new Button("^");
-    const downButton = new Button("v");
-    const leftButton = new Button("<");
-    const rightButton = new Button(">");
-    const stopButton = new Button("x");
-    mobileButtons = [upButton, downButton, leftButton, rightButton, stopButton];
-    for (let i = 0; i < mobileButtons.length; i++) {
-        mobileButtons[i].y = canvas.height - 160;
-    }
-    upButton.x = canvas.width - 160;
-    upButton.y -= 60;
-    downButton.y += 60;
-    downButton.x = canvas.width - 160;
-    leftButton.x = canvas.width - 220;
-    rightButton.x = canvas.width - 100;
-    stopButton.x = canvas.width - 160;
-
-    upButton.callback = () => {
-        playerVelocity.up = player.speed;
-        playerVelocity.down = 0;
-    };
-    upButton.off = () => {
-        playerVelocity.up = 0;
-    };
-    downButton.callback = () => {
-        playerVelocity.down = player.speed;
-        playerVelocity.up = 0;
-    };
-    downButton.off = () => {
-        playerVelocity.down = 0;
-    };
-    leftButton.callback = () => {
-        playerVelocity.left = player.speed;
-        playerVelocity.right = 0;
-    };
-    leftButton.off = () => {
-        playerVelocity.left = 0;
-    };
-    rightButton.callback = () => {
-        playerVelocity.right = player.speed;
-        playerVelocity.left = 0;
-    };
-    rightButton.off = () => {
-        playerVelocity.right = 0;
-    };
-    stopButton.callback = () => {
-        playerVelocity.left = 0;
-        playerVelocity.right = 0;
-        playerVelocity.up = 0;
-        playerVelocity.down = 0;
-    };
+    })(i));
+    hotbarElement.appendChild(btn);
+    menuButtonPrices.push(price);
+    menuButtons.push(btn);
 }
 
 for (let i = 0; i < 5; i++) {
@@ -689,48 +657,12 @@ function setMousePosition(e) {
     mousePosition.x = e.clientX + viewport.x;
     mousePosition.y = e.clientY + viewport.y;
 }
-function handleClick(e) {
-    let clickedButton = false;
-    for (let i = 0; i < menuButtons.length; i++) {
-        const button = menuButtons[i];
-        if (button.isClicked(e.clientX, e.clientY)) {
-            button.click();
-            clickedButton = true;
-            break;
-        }
-    }
-    for (let i = 0; i < mobileButtons.length; i++) {
-        const button = mobileButtons[i];
-        if (button.isClicked(e.clientX, e.clientY)) {
-            button.click();
-            clickedButton = true;
-            break;
-        }
-    }
-    if (!clickedButton) {
-        shoot();
-    }
-}
 document.addEventListener("mousemove",  (e) => {
     setMousePosition(e);
 });
-document.addEventListener("touchmove",  (e) => {
+canvas.addEventListener("mousedown", (e) => {
     setMousePosition(e);
-});
-document.addEventListener("mousedown", (e) => {
-    setMousePosition(e);
-    handleClick(e);
-});
-document.addEventListener("touchstart", (e) => {
-    setMousePosition(e);
-    handleClick(e);
-});
-document.addEventListener("touchend", function(e) {
-    for (let i = 0; i < mobileButtons.length; i++) {
-        if (mobileButtons[i].isClicked(e.changedTouches[0].clientX, e.changedTouches[0].clientY)) {
-            mobileButtons[i].unclick();
-        }
-    }
+    shoot();
 });
 
 // moving keys
@@ -773,131 +705,7 @@ document.addEventListener('keyup', function(event) {
     }
 });
 document.addEventListener('keydown', function(event) {
-    if (event.key == '=' || event.key == '+') {
-        buyEnemy();
-    } else if (event.key == ']') {
-        localStorage.setItem('data', JSON.stringify({
-            "enemies": enemies,
-            "healthPacks": healthPacks,
-            "hazards": hazards,
-            "projectiles": projectiles,
-            "turrets": turrets,
-            "player": player,
-            "viewport": viewport,
-            "mousePosition": mousePosition,
-            "playerVelocity": playerVelocity,
-            "currency": currency,
-            "pricing": pricing,
-            "kills": kills,
-            "fighters": fighters
-        }));
-    } else if (event.key == '[') {
-        let data = localStorage.getItem('data');
-        data = JSON.parse(data);
-        enemies = [];
-        for (let i = 0; i < data.enemies.length; i++) {
-            let newEnemy = new Enemy();
-            newEnemy.x = data.enemies[i].x;
-            newEnemy.y = data.enemies[i].y;
-            newEnemy.health = data.enemies[i].health;
-            newEnemy.maxHealth = data.enemies[i].maxHealth;
-            newEnemy.reward = data.enemies[i].reward;
-            newEnemy.speed = data.enemies[i].speed;
-            newEnemy.sx = data.enemies[i].sx;
-            newEnemy.sy = data.enemies[i].sy;
-            enemies.push(newEnemy);
-        }
-        healthPacks = [];
-        for (let i = 0; i < data.healthPacks.length; i++) {
-            let newHealthPack = new Entity();
-            newHealthPack.x = data.healthPacks[i].x;
-            newHealthPack.y = data.healthPacks[i].y;
-            newHealthPack.sx = data.healthPacks[i].sx;
-            newHealthPack.sy = data.healthPacks[i].sy;
-            healthPacks.push(newHealthPack);
-        }
-        hazards = [];
-        for (let i = 0; i < data.hazards.length; i++) {
-            let newHazard = new Hazard();
-            if (data.hazards[i]?.frames?.length) {
-                newHazard.frames = data.hazards[i].frames;
-                newHazard.frame = 0;
-                newHazard = new Fire();
-            }
-            newHazard.x = data.hazards[i].x;
-            newHazard.y = data.hazards[i].y;
-            newHazard.sx = data.hazards[i].sx;
-            newHazard.sy = data.hazards[i].sy;
-            newHazard.damage = data.hazards[i].damage;
-            newHazard.sprite.src = data.hazards[i].sprite.src;
-            hazards.push(newHazard);
-        }
-        projectiles = [];
-        for (let i = 0; i < data.projectiles.length; i++) {
-            let newProjectile = new Projectile();
-            newProjectile.x = data.projectiles[i].x;
-            newProjectile.y = data.projectiles[i].y;
-            newProjectile.sx = data.projectiles[i].sx;
-            newProjectile.sy = data.projectiles[i].sy;
-            newProjectile.vx = data.projectiles[i].vx;
-            newProjectile.vy = data.projectiles[i].vy;
-            newProjectile.health = data.projectiles[i].health;
-            newProjectile.maxHealth = data.projectiles[i].maxHealth;
-            newProjectile.speed = data.projectiles[i].speed;
-            projectiles.push(newProjectile);
-        }
-        turrets = [];
-        for (let i = 0; i < data.turrets.length; i++) {
-            let newTurret = new Turret();
-            newTurret.x = data.turrets[i].x;
-            newTurret.y = data.turrets[i].y;
-            newTurret.health = data.turrets[i].health;
-            newTurret.maxHealth = data.turrets[i].maxHealth;
-            newTurret.firePower = data.turrets[i].firePower;
-            newTurret.projectileSize = data.turrets[i].projectileSize;
-            newTurret.projectileSpeed = data.turrets[i].projectileSpeed;
-            newTurret.fireRate = data.turrets[i].fireRate;
-            newTurret.lastFire = data.turrets[i].lastFire;
-            newTurret.projectileCount = data.turrets[i].projectileCount;
-            newTurret.sprite.src = data.turrets[i].sprite.src;
-            newTurret.gun.src = data.turrets[i].gun.src;
-            newTurret.target = data.turrets[i].target;
-            turrets.push(newTurret);
-        }
-
-        fighters = [];
-        for (let i = 0; i < data.fighters.length; i++) {
-            let newFighter = new Fighter();
-            newFighter.x = data.fighters[i].x;
-            newFighter.y = data.fighters[i].y;
-            newFighter.health = data.fighters[i].health;
-            newFighter.maxHealth = data.fighters[i].maxHealth;
-            newFighter.speed = data.fighters[i].speed;
-            newFighter.sx = data.fighters[i].sx;
-            newFighter.sy = data.fighters[i].sy;
-            newFighter.projectileCount = data.fighters[i].projectileCount;
-            fighters.push(newFighter);
-        }
-
-        kills = data.kills;
-        currency = data.currency;
-        pricing = data.pricing;
-        viewport.x = data.viewport.x;
-        viewport.y = data.viewport.y;
-        viewport.width = data.viewport.width;
-        viewport.height = data.viewport.height;
-        mousePosition.x = data.mousePosition.x;
-        mousePosition.y = data.mousePosition.y;
-        playerVelocity = data.playerVelocity;
-        player.x = data.player.x;
-        player.y = data.player.y;
-        player.sx = data.player.sx;
-        player.sy = data.player.sy;
-        player.health = data.player.health;
-        player.maxHealth = data.player.maxHealth;
-        player.speed = data.player.speed;
-
-    } else if (parseInt(event.key) - 1 < turretShop.length) {
+    if (parseInt(event.key) - 1 < turretShop.length) {
         createTurret(parseInt(event.key) - 1);
     }
 });
@@ -909,9 +717,9 @@ function drawScene() {
         for (let y = 0; y < chunkCountY; y++) {
             let chunkPositionX = chunkSize * x + viewport.x;
             let chunkPositionY = chunkSize * y + viewport.y;
-            let perlinPositionX = Math.floor(Math.abs(chunkPositionX / chunkSize) % perlinNoise.length);
-            let perlinPositionY = Math.floor(Math.abs(chunkPositionY / chunkSize) % perlinNoise[0].length);
-            let perlinValue = perlinNoise[perlinPositionX][perlinPositionY];
+            // let perlinPositionX = Math.floor(Math.abs(chunkPositionX / chunkSize) % perlinNoise.length);
+            // let perlinPositionY = Math.floor(Math.abs(chunkPositionY / chunkSize) % perlinNoise[0].length);
+            // let perlinValue = perlinNoise[perlinPositionX][perlinPositionY];
 
             let distanceFromCenter = Math.sqrt(Math.pow(chunkPositionX - canvas.width / 2, 2) + Math.pow(chunkPositionY - canvas.height / 2, 2)) / 20;
 
@@ -932,9 +740,9 @@ function drawScene() {
                 b = red[2] * (1 - t) + black[2] * t;
             }
 
-            r *= 1 - (perlinValue / 2);
-            g *= 1 - (perlinValue / 2);
-            b *= 1 - (perlinValue / 2);
+            // r *= 1 - (perlinValue / 2);
+            // g *= 1 - (perlinValue / 2);
+            // b *= 1 - (perlinValue / 2);
 
             ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
             ctx.fillRect(chunkPositionX - viewport.x, chunkPositionY - viewport.y, chunkSize, chunkSize);
@@ -942,11 +750,7 @@ function drawScene() {
     }
 }
 
-function drawUI() {
-    // ctx.strokeStyle = 'black';
-    // ctx.strokeRect(viewport.x, viewport.y, canvas.width + viewport.x, canvas.height + viewport.y);
-    // ctx.strokeStyle = 'green';
-    // ctx.strokeRect(viewport.x + 100, viewport.y + 100, canvas.width + viewport.x - 200, canvas.height + viewport.y - 200);
+function updateUI() {
     const now = performance.now();
     const delta = now - lastRender;
     frameCount++;
@@ -955,31 +759,19 @@ function drawUI() {
         frameCount = 0;
         lastRender = now;
     }
-    ctx.font = '12px Arial';
-    ctx.fillStyle = 'black';
-    ctx.fillText(`FPS: ${Math.round(fps)}`, 10, 20);
+    fpsElement.innerText = `FPS: ${Math.round(fps)}`;
+    healthElement.innerText = `Health: ${player.health} / ${player.maxHealth}`;
+    staminaElement.innerText = `Stamina: ${player.stamina} / ${player.maxStamina}`;
+    coinsElement.innerText = `Coins: ${Math.round(currency*100)/100}`;
+    enemiesElement.innerText = `Enemies: ${enemies.length} & ${fighters.length} (${kills} kills)`;
+    turretsElement.innerText = `Turrets: ${turrets.length}`;
 
     for (i = 0; i < turretShop.length; i++) {
-        menuButtons[i].bottom = "$"+(Math.round(turretShop[i].price*pricing*100)/100);
+        menuButtonPrices[i].innerText = `$${(Math.round(turretShop[i].price*pricing*100)/100)}`;
     }
 
-    menuButtons.forEach((button) => {
-        button.draw();
-    });
-    mobileButtons.forEach((button) => {
-        button.draw();
-    });
-    currencySprite.draw();
-    enemySprite.draw();
-    turretSprite.draw();
-    ctx.font = "bold 20px sans-serif";
-    ctx.fillText(Math.round(currency*100)/100, 90, canvas.height - 138);
-    ctx.fillText(`${enemies.length} & ${fighters.length}  (${kills} kills)`, 90, canvas.height - 178);
-    ctx.fillText(turrets.length, 90, canvas.height - 218);
-    
-    playerHealthBar.value = player.health;
-    playerHealthBar.maxValue = player.maxHealth;
-    playerHealthBar.draw();
+    healthBarFill.style.width = player.health + "%";
+    staminaBarFill.style.width = player.stamina + "%";
 }
 
 function render() {
@@ -1255,8 +1047,27 @@ function render() {
 
     // draw entities
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let distanceFromCenter = Math.sqrt(Math.pow(canvas.width / 2 - viewport.x, 2) + Math.pow(canvas.height / 2 - viewport.y, 2)) / 20;
+    const white = [255, 255, 255];
+    const red = [255, 20, 20];
+    const black = [0, 0, 0];
+    let t = Math.min(distanceFromCenter / (canvas.width / 2), 1);
+
+    let r = white[0] * (1 - t) + red[0] * t;
+    let g = white[1] * (1 - t) + red[1] * t;
+    let b = white[2] * (1 - t) + red[2] * t;
+
+    if (distanceFromCenter > canvas.width / 2) {
+        t = Math.min((distanceFromCenter - canvas.width / 2) / (canvas.width / 2), 1);
+        r = red[0] * (1 - t) + black[0] * t;
+        g = red[1] * (1 - t) + black[1] * t;
+        b = red[2] * (1 - t) + black[2] * t;
+    }
+
+    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     // draw scene
-    drawScene();
+    // drawScene();
 
     player.draw();
 
@@ -1318,7 +1129,7 @@ function render() {
         healthBar.draw();
     }
 
-    drawUI();
+    updateUI();
     requestAnimationFrame(render);
 }
 render();
