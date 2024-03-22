@@ -281,8 +281,12 @@ class IconButton extends Button {
     }
     draw() {
         ctx.fillStyle = "#999999";
-        ctx.fillRect(this.x, this.y, this.sx, this.sy);
         ctx.drawImage(this.sprite, this.x, this.y, this.sx, this.sy);
+
+        ctx.fillStyle = 'black';
+        ctx.font = "12px sans-serif";
+        ctx.fillText(this.top, this.x, this.y - 4);
+        ctx.fillText(this.bottom, this.x, this.y + this.sy + 12);
     }
 }
 class Icon extends UIElement {
@@ -586,6 +590,7 @@ for (i = 0; i < turretShop.length + 1; i++) {
             buyEnemy();
         }
     } else {
+        // menuButton = new IconButton(`sprites/UI/t${i+1}.png`);
         menuButton.callback = (function(index) {
             return function() {
                 createTurret(index);
