@@ -6,8 +6,36 @@ class Object {
         this.sy = sy;
     }
     isColliding(object) {
-        return this.x < object.x + object.sx && this.x + this.sx > object.x &&
-            this.y < object.y + object.sy && this.y + this.sy > object.y;
+        if (this.x < object.x + object.sx && this.x + this.sx > object.x &&
+            this.y < object.y + object.sy && this.y + this.sy > object.y) {
+            return true;
+        } else {
+            let topRightX = object.x + object.sx;
+            let bottomRightX = object.x + object.sx;
+            let bottomLeftX = object.x;
+            let topLeftX = object.x;
+            let topRightY = object.y + object.sy;
+            let bottomRightY = object.y + object.sy;
+            let bottomLeftY = object.y;
+            let topLeftY = object.y;
+            if (this.x < topRightX && this.x + this.sx > topRightX &&
+                this.y < topRightY && this.y + this.sy > topRightY) {
+                return true;
+            }
+            if (this.x < bottomRightX && this.x + this.sx > bottomRightX &&
+                this.y < bottomRightY && this.y + this.sy > bottomRightY) {
+                return true;
+            }
+            if (this.x < bottomLeftX && this.x + this.sx > bottomLeftX &&
+                this.y < bottomLeftY && this.y + this.sy > bottomLeftY) {
+                return true;
+            }
+            if (this.x < topLeftX && this.x + this.sx > topLeftX &&
+                this.y < topLeftY && this.y + this.sy > topLeftY) {
+                return true;
+            }
+            return false;
+        }
     }
 }
 class Booster extends Object {
