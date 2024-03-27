@@ -55,7 +55,7 @@ class Player extends Object {
         this.isBoosting = false;
         this.color = color;
         this.isTagged = false;
-        this.wasTagged = 300;
+        this.wasTagged = 500;
         document.addEventListener('keydown', (e) => {
             if (e.key === keys.left) {
                 this.nvx = speed;
@@ -90,7 +90,7 @@ class Player extends Object {
         });
     }
     canTag() {
-        return this.isTagged && performance.now() - this.wasTagged > 300;
+        return this.isTagged && performance.now() - this.wasTagged > 500;
     }
     tag() {
         this.isTagged = true;
@@ -120,7 +120,7 @@ class Player extends Object {
                 this.isBoosting = false;
             }
         }
-        if (this.isTagged && performance.now() - this.wasTagged <= 300) {
+        if (this.isTagged && performance.now() - this.wasTagged <= 500) {
             tag = 0.05;
         }
         if (speed > 0) {
@@ -288,12 +288,56 @@ function render() {
 
     walls.forEach(wall => {
         if (wall.isColliding(player1)) {
+            let tempX = player1.x;
+            let tempY = player1.y;
+            let xCollides = false;
+            let yCollides = false;
             player1.x = player1.lastX;
+            if (wall.isColliding(player1)) {
+                yCollides = true;
+            }
+            player1.x = tempX;
             player1.y = player1.lastY;
+            if (wall.isColliding(player1)) {
+                xCollides = true;
+            }
+            player1.y = tempY;
+            if (xCollides) {
+                player1.x = player1.lastX;
+            }
+            if (yCollides) {
+                player1.y = player1.lastY;
+            }
+            if (wall.isColliding(player1)) {
+                player1.x = player1.lastX;
+                player1.y = player1.lastY;
+            }
         }
         if (wall.isColliding(player2)) {
+            let tempX = player2.x;
+            let tempY = player2.y;
+            let xCollides = false;
+            let yCollides = false;
             player2.x = player2.lastX;
+            if (wall.isColliding(player2)) {
+                yCollides = true;
+            }
+            player2.x = tempX;
             player2.y = player2.lastY;
+            if (wall.isColliding(player2)) {
+                xCollides = true;
+            }
+            player2.y = tempY;
+            if (xCollides) {
+                player2.x = player2.lastX;
+            }
+            if (yCollides) {
+                player2.y = player2.lastY;
+            }
+            if (wall.isColliding(player2)) {
+                player2.x = player2.lastX;
+                player2.y = player2.lastY;
+            }
         }
     });
 
