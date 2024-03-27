@@ -67,6 +67,23 @@ class Wall extends Object {
         ctx.fillRect(this.x, this.y, this.sx, this.sy);
     }
 }
+class Portal extends Object {
+    constructor(x, y, sx, sy) {
+        super(x, y, sx, sy);
+        this.pair = null;
+    }
+    pairWith(portal) {
+        this.pair = portal;
+    }
+    getTeleport() {
+        return {x: this.pair.x, y: this.pair.y};
+    }
+    draw() {
+        ctx.fillStyle = 'purple';
+        ctx.fillRect(this.x, this.y, this.sx, this.sy);
+    }
+
+}
 class Player extends Object {
     constructor(x, y, sx, sy, speed, color, keys) {
         super(x, y, sx, sy);
@@ -84,6 +101,7 @@ class Player extends Object {
         this.color = color;
         this.isTagged = false;
         this.wasTagged = 500;
+        this.wasTeleported = 500;
         document.addEventListener('keydown', (e) => {
             if (e.key === keys.left) {
                 this.nvx = speed;
@@ -116,6 +134,14 @@ class Player extends Object {
                 this.vy = 0;
             }
         });
+    }
+    canTeleport() {
+        return performance.now() - this.wasTeleported > 500;
+    }
+    teleport(teleport) {
+        this.wasTeleported = performance.now();
+        this.x = teleport.x;
+        this.y = teleport.y;
     }
     canTag() {
         return this.isTagged && performance.now() - this.wasTagged > 500;
@@ -282,6 +308,22 @@ if (mapChoice === 0) {
     }
 }
 
+const portals = [];
+for (let x = 0; x < 3; x++) {
+    let portal1 = new Portal(Math.random() * canvas.width, Math.random() * canvas.height, 10, 10);
+    let portal2 = new Portal(Math.random() * canvas.width, Math.random() * canvas.height, 10, 10);
+    portals.push(portal1);
+    portals.push(portal2);
+    portal1.pairWith(portal2);
+    portal2.pairWith(portal1);
+    for (let i = 0; i < walls.length; i++) {
+        if (walls[i].isColliding(portal1) || walls[i].isColliding(portal2)) {
+            walls.splice(i, 1);
+            i--;
+        }
+    }
+}
+
 let lastRender = performance.now();
 let frameCount = 0;
 let fps = 0;
@@ -382,6 +424,21 @@ function render() {
         }
     });
 
+    portals.forEach(portal => {
+        if (portal.isColliding(player1)) {
+            if (player1.canTeleport()) {
+                const teleport = portal.getTeleport();
+                player1.teleport(teleport);
+            }
+        }
+        if (portal.isColliding(player2)) {
+            if (player2.canTeleport()) {
+                const teleport = portal.getTeleport();
+                player2.teleport(teleport);
+            }
+        }
+    });
+
     // Draw Scene
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -391,6 +448,10 @@ function render() {
 
     walls.forEach(wall => {
         wall.draw();
+    });
+
+    portals.forEach(portal => {
+        portal.draw();
     });
 
     player1.draw();
