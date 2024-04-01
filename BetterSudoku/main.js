@@ -178,7 +178,6 @@ document.addEventListener('keydown', (e) => {
 // generate - add number, check isSolvable, if not remove number
 // once full, remove max 17, 81-n checking isSolvable each time 
 
-// should return a sudoku with invalid placements removed
 function validatePosition(sudoku, x, y) {
     let section = Math.floor(y / 3) * 3 + Math.floor(x / 3) + 1;
     let value = sudoku[y * 9 + x];
