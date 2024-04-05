@@ -292,30 +292,24 @@ async function generateSudoku(givenSquares) {
     while (!isComplete(sudoku, givenSquares)) {
         draw(sudoku);
 
-        let x, y;
-        x = Math.floor(Math.random() * 9);
-        y = Math.floor(Math.random() * 9);
-        let randomPos = y * 9 + x;
-        // must be an available square
-        while (sudoku[randomPos] != " ") {
-            x = Math.floor(Math.random() * 9);
-            y = Math.floor(Math.random() * 9);
-            randomPos = y * 9 + x;
-        }
-        let randomDigit = Math.floor(Math.random() * 9) + 1;
-        // must be an available digit
-        while (usedDigits[randomDigit - 1] == 9) {
-            randomDigit = Math.floor(Math.random() * 9) + 1;
-        }
-        usedDigits[randomDigit - 1]++;
         let tempSudoku = [];
         for (let i = 0; i < 81; i++) {
             tempSudoku.push(sudoku[i]);
         }
+
+        let randomPos, randomDigit;
+        // must be an available square
+        do { randomPos = Math.floor(Math.random() * 81); } while (randomPos && sudoku[randomPos] !== " ");
+        // must be an available digit
+        do { randomDigit = Math.floor(Math.random() * 9) + 1; } while (randomDigit && usedDigits[randomDigit - 1] == 9);
+
+        usedDigits[randomDigit - 1]++;
         tempSudoku[randomPos] = randomDigit;
+
         draw(tempSudoku);
         updateWrongs();
         await new Promise((resolve, reject) => setTimeout(resolve, 1));
+        
         // check if valid
         if (isSolvable(tempSudoku)) {
             sudoku[randomPos] = randomDigit;
