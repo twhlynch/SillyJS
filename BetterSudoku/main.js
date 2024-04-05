@@ -27,6 +27,16 @@ for (let i = 0; i < 9; i++) {
     progressSquare.classList.add('progress-square');
     progressSquares.push(progressSquare);
     progress.appendChild(progressSquare);
+    progressSquare.addEventListener('click', () => {
+        if (!progressSquare.classList.contains('progress-square-done')) {
+            if (current) {
+                current.innerText = i + 1;
+                updateWrongs();
+                updateProgress();
+                current.click();
+            }
+        }
+    });
 }
 
 // click events
@@ -174,25 +184,78 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// function isSolvable try every combination of 1-9 in empty squares while checking validity
-// generate - add number, check isSolvable, if not remove number
-// once full, remove max 17, 81-n checking isSolvable each time 
+function draw(sudoku) {
+    // remove given
+    squares.forEach(square => {
+        square.classList.remove('square-given');
+    });
+    for (let i = 0; i < 81; i++) {
+        squares[i].innerText = sudoku[i];
+        if (sudoku[i] !== " ") {
+            squares[i].classList.add('square-given');
+        }
+    }
+}
 
 function validatePosition(sudoku, x, y) {
     let section = Math.floor(y / 3) * 3 + Math.floor(x / 3) + 1;
     let value = sudoku[y * 9 + x];
+
+    if (value == " ") {
+
+        // check possibilities
+        let possibilities = [1,2,3,4,5,6,7,8,9];
+        
+        for (let row = 0; row < 9; row++) {
+            let location = row * 9 + x;
+            if (sudoku[location] in possibilities) {
+                possibilities.splice(possibilities.indexOf(sudoku[location]), 1);
+            }
+        }
+
+        for (let col = 0; col < 9; col++) {
+            let location = y * 9 + col;
+            if (sudoku[location] in possibilities) {
+                possibilities.splice(possibilities.indexOf(sudoku[location]), 1);
+            }
+        }
+
+        for (let section2 = 0; section2 < 9; section2++) {
+            let location = Math.floor(section2 / 3) * 3 + Math.floor(section2 % 3) + 1;
+            if (sudoku[location] in possibilities) {
+                possibilities.splice(possibilities.indexOf(sudoku[location]), 1);
+            }
+        }
+
+        return possibilities.length >= 1;
+    }
+    
+    // for every box
     for (let i = 0; i < 81; i++) {
         let row = Math.floor(i / 9);
         let col = i % 9;
         let section2 = Math.floor(row / 3) * 3 + Math.floor(col / 3) + 1;
         let value2 = sudoku[i];
-        if (row == x && col == y) {
+
+        if (i == y * 9 + x) {
             continue;
         }
-        if (row == x || col == x || section == section2) {
-            if (value == value2) {
+
+        if (value == value2) {
+            if (row == y || col == x || section == section2) {
                 return false;
             }
+        }
+        
+    }
+    // no overlaps
+    return true;
+}
+
+function validateSudoku(sudoku) {
+    for (let i = 0; i < 81; i++) {
+        if (!validatePosition(sudoku, i % 9, Math.floor(i / 9))) {
+            return false;
         }
     }
     return true;
@@ -208,25 +271,17 @@ function isComplete(sudoku, total) {
     return given == total;
 }
 
+// check every possibility with the already set values
 function isSolvable(sudoku) {
+    let testSudoku = [];
     for (let i = 0; i < 81; i++) {
-        if (sudoku[i] == " ") {
-            let x = i % 9;
-            let y = Math.floor(i / 9);
-            for (let j = 1; j <= 9; j++) {
-                sudoku[i] = j;
-                if (validatePosition(sudoku, x, y) && isSolvable(sudoku)) {
-                    return true;
-                }
-            }
-            sudoku[i] = " ";
-            return false;
-        }
+        testSudoku.push(sudoku[i]);
     }
-    return true;
+
+    return validateSudoku(testSudoku);
 }
 
-function generateSudoku(givenSquares) {
+async function generateSudoku(givenSquares) {
     let sudoku = [];
     let usedDigits = [0, 0, 0, 0, 0, 0, 0, 0, 0];
     for (let i = 0; i < 81; i++) {
@@ -234,7 +289,9 @@ function generateSudoku(givenSquares) {
     }
 
     // while not full
-    while (!isComplete(sudoku, 81)) {
+    while (!isComplete(sudoku, givenSquares)) {
+        draw(sudoku);
+
         let x, y;
         x = Math.floor(Math.random() * 9);
         y = Math.floor(Math.random() * 9);
@@ -256,6 +313,9 @@ function generateSudoku(givenSquares) {
             tempSudoku.push(sudoku[i]);
         }
         tempSudoku[randomPos] = randomDigit;
+        draw(tempSudoku);
+        updateWrongs();
+        await new Promise((resolve, reject) => setTimeout(resolve, 1));
         // check if valid
         if (isSolvable(tempSudoku)) {
             sudoku[randomPos] = randomDigit;
@@ -264,29 +324,13 @@ function generateSudoku(givenSquares) {
         }
     }
 
-    // remove squares
-    for (let i = 0; i < 81 - givenSquares; i++) {
-        let x, y;
-        x = Math.floor(Math.random() * 9);
-        y = Math.floor(Math.random() * 9);
-        let randomPos = y * 9 + x;
-        while (sudoku[randomPos] == " ") {
-            x = Math.floor(Math.random() * 9);
-            y = Math.floor(Math.random() * 9);
-            randomPos = y * 9 + x;
-        }
-        sudoku[randomPos] = " ";
-    }
-
     return sudoku;
 }
 
-let sudoku = generateSudoku(81);
-for (let i = 0; i < 81; i++) {
-    squares[i].innerText = sudoku[i];
-    if (sudoku[i] !== " ") {
-        squares[i].classList.add('square-given');
-    }
-}
+let sudoku;
+(async () => {
+sudoku = await generateSudoku(Math.floor(81 / 2));
+})();
+draw(sudoku);
 updateProgress();
 updateWrongs();
