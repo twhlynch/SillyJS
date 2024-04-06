@@ -105,7 +105,7 @@
             border-bottom: 1px solid #999;
         }
         .progress-square-done {
-            color: white;
+            color: #aaa;
         }
         .square-not {
             background-color: #1f93ff1e;
@@ -124,10 +124,71 @@
         .square-wrong {
             color: #f00;
         }
+        .square-given.square-wrong {
+            color: #900;
+        }
+        .number {
+            pointer-events: none;
+        }
+        .notes {
+            width: calc(min(80vw, 80svh) / 9 - 5px);
+            height: calc(min(80vw, 80svh) / 9 - 5px);
+            padding: 5px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            font-size: 0.4em;
+            position: absolute;
+            pointer-events: none;
+        }
+        .square-given .notes {
+            display: none;
+        }
+        .note {
+            visibility: hidden;
+        }
+        .note-active {
+            visibility: visible;
+        }
+        .number-filled .notes {
+            display: none;
+        }
+        #controls {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: calc(100vw - 20px);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 10px;
+        }
+        #controls button {
+            font-size: .9rem;
+            padding: 5px;
+            border: 1px solid black;
+            background-color: #ccc;
+            cursor: pointer;
+        }
+        #clearNumbers {
+            margin-right: auto;
+        }
+        #notes.notes-active {
+            background-color: #1f93ff1e;
+        }
     </style>
 </head>
 <body>
     <div id="game"></div>
     <div id="progress"></div>
+    <div id="controls">
+        <button id="reset">Restart</button>
+        <button id="clearNotes">Clear notes</button>
+        <button id="clearNumbers">Clear numbers</button>
+        <button id="clear">Space: Clear</button>
+        <button id="notes">Q: notes</button>
+    </div>
 </body>
 </html>

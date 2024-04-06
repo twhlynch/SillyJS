@@ -1,22 +1,41 @@
 
 const game = document.getElementById('game');
 const progress = document.getElementById('progress');
+let notesMode = false;
 let current = null;
 
 // create squares
 const squares = [];
+const squareNums = [];
+const notes = [];
 for (let i = 0; i < 9 * 9; i++) {
     const square = document.createElement('div');
-    square.innerText = " ";
+    const squareNum = document.createElement('span');
+    squareNum.className = "number";
+    squareNum.innerText = " ";
+    square.appendChild(squareNum);
+    squareNums.push(squareNum);
     let col = i % 9 + 1;
     let row = Math.floor(i / 9) + 1;
     let section = Math.floor((row - 1) / 3) * 3 + Math.floor((col - 1) / 3) + 1;
     square.setAttribute('data-section', section);
     square.setAttribute('data-row', row);
     square.setAttribute('data-col', col);
+    square.setAttribute('data-index', i);
     square.classList.add('square');
     squares.push(square);
     game.appendChild(square);
+
+    const note = document.createElement('div');
+    for (let j = 0; j < 9; j++) {
+        const noteNum = document.createElement('div');
+        noteNum.innerText = j + 1;
+        noteNum.classList.add('note');
+        note.appendChild(noteNum);
+    }
+    note.classList.add('notes');
+    square.appendChild(note);
+    notes.push(note);
 }
 
 // create progress squares
@@ -29,11 +48,21 @@ for (let i = 0; i < 9; i++) {
     progress.appendChild(progressSquare);
     progressSquare.addEventListener('click', () => {
         if (!progressSquare.classList.contains('progress-square-done')) {
-            if (current) {
-                current.innerText = i + 1;
-                updateWrongs();
-                updateProgress();
-                current.click();
+            if (current != null && !squares[current].classList.contains('square-given')) {
+                if (notesMode) {
+                    const note = notes[current].children[i];
+                    if (note.classList.contains('note-active')) {
+                        note.classList.remove('note-active');
+                    } else {
+                        note.classList.add('note-active');
+                    }
+                } else {
+                    squareNums[current].innerText = i + 1;
+                    squares[current].classList.add('number-filled');
+                    updateWrongs();
+                    updateProgress();
+                    squares[current].click();
+                }
             }
         }
     });
@@ -51,11 +80,12 @@ squares.forEach(square => {
         const row = e.target.getAttribute('data-row');
         const col = e.target.getAttribute('data-col');
         const section = e.target.getAttribute('data-section');
-        const value = e.target.innerText;
+        const index = e.target.getAttribute('data-index');
+        const value = squareNums[index].innerText;
 
         e.target.classList.add('square-selected');
         e.target.classList.add('square-not');
-        current = e.target;
+        current = index;
 
         squares.forEach(square => {
             if (square.getAttribute('data-row') == row || square.getAttribute('data-col') == col || square.getAttribute('data-section') == section){
@@ -72,7 +102,7 @@ squares.forEach(square => {
 function updateProgress() {
     let usedDigits = [0, 0, 0, 0, 0, 0, 0, 0, 0];
     for (let i = 0; i < 9 * 9; i++) {
-        const value = squares[i].innerText;
+        const value = squareNums[i].innerText;
         if (value !== " " && value !== "") {
             usedDigits[value - 1]++;
         }
@@ -97,7 +127,7 @@ function updateProgress() {
             alert('Winner!');
             let sudoku = generateSudoku(81);
             for (let i = 0; i < 81; i++) {
-                squares[i].innerText = sudoku[i];
+                squareNums[i].innerText = sudoku[i];
                 if (sudoku[i] !== " ") {
                     squares[i].classList.add('square-given');
                 }
@@ -116,12 +146,14 @@ function updateWrongs() {
         const row = square.getAttribute('data-row');
         const col = square.getAttribute('data-col');
         const section = square.getAttribute('data-section');
-        const value = square.innerText;
+        const index = square.getAttribute('data-index');
+        const value = squareNums[index].innerText;
         squares.forEach(square2 => {
             const row2 = square2.getAttribute('data-row');
             const col2 = square2.getAttribute('data-col');
             const section2 = square2.getAttribute('data-section');
-            const value2 = square2.innerText;
+            const index2 = square2.getAttribute('data-index');
+            const value2 = squareNums[index2].innerText;
             if (row == row2 || col == col2 || section == section2) {
                 if (value == value2 && value !== "" && value !== " " && square !== square2) {
                     square.classList.add('square-wrong');
@@ -134,26 +166,104 @@ function updateWrongs() {
 
 //key events space and 1 through 9
 document.addEventListener('keydown', (e) => {
-    if (current !== null && !current.classList.contains("square-given")) {
+    if (e.key == "q") {
+        notesMode = !notesMode;
+        document.getElementById('notes').className = notesMode ? "notes-active" : "";
+    }
+    if (current !== null && !squares[current].classList.contains("square-given")) {
         if (e.key === " ") {
-            current.innerText = " ";
+            squareNums[current].innerText = " ";
+            squares[current].classList.remove('number-filled');
             updateWrongs();
         } else if (e.key >= 1 && e.key <= 9) {
-            if (!progressSquares[parseInt(e.key) - 1].classList.contains('progress-square-done')) {
-                current.innerText = e.key;
+            if (notesMode) {
+                const note = notes[current].children[e.key - 1];
+                if (note.classList.contains('note-active')) {
+                    note.classList.remove('note-active');
+                } else {
+                    note.classList.add('note-active');
+                }
+            } else {
+                if (!progressSquares[parseInt(e.key) - 1].classList.contains('progress-square-done')) {
+                    squareNums[current].innerText = e.key;
+                    squares[current].classList.add('number-filled');
+                }
+                updateWrongs();
             }
-            updateWrongs();
         }
         updateProgress();
-        current.click();
+        squares[current].click();
     }
+});
+
+document.getElementById('clear').addEventListener('click', () => {
+    if (current !== null && !squares[current].classList.contains("square-given")) {
+        squareNums[current].innerText = " ";
+        squares[current].classList.remove('number-filled');
+        updateWrongs();
+        updateProgress();
+        squares[current].click();
+    }
+});
+
+document.getElementById('notes').addEventListener('click', () => {
+    notesMode = !notesMode;
+    document.getElementById('notes').className = notesMode ? "notes-active" : "";
+});
+
+document.getElementById('reset').addEventListener('click', () => {
+    squares.forEach(square => {
+        square.classList.remove('square-not');
+        square.classList.remove('square-selected');
+        square.classList.remove('square-wrong');
+        square.classList.remove('number-filled');
+        square.classList.remove('square-given');
+    });
+    squareNums.forEach(squareNum => {
+        squareNum.innerText = " ";
+    });
+    progressSquares.forEach(progressSquare => {
+        progressSquare.classList.remove('progress-square-done');
+    });
+    notes.forEach(note => {
+        for (let i = 0; i < 9; i++) {
+            note.children[i].classList.remove('note-active');
+        }
+    });
+    current = null;
+    
+    (async () => {
+    sudoku = await generateSudoku(Math.floor(81 / 2));
+    })();
+    draw(sudoku);
+    updateProgress();
+    updateWrongs();
+});
+
+document.getElementById('clearNotes').addEventListener('click', () => {
+    notes.forEach(note => {
+        for (let i = 0; i < 9; i++) {
+            note.children[i].classList.remove('note-active');
+        }
+    });
+});
+
+document.getElementById('clearNumbers').addEventListener('click', () => {
+    squares.forEach(square => {
+        if (!square.classList.contains('square-given')) {
+            squareNums[square.getAttribute('data-index')].innerText = " ";
+            square.classList.remove('number-filled');
+        }
+    });
+    updateWrongs();
+    updateProgress();
 });
 
 // arrow key movements
 document.addEventListener('keydown', (e) => {
     if (current !== null) {
-        let row = parseInt(current.getAttribute('data-row'));
-        let col = parseInt(current.getAttribute('data-col'));
+        let row = parseInt(squares[current].getAttribute('data-row'));
+        let col = parseInt(squares[current].getAttribute('data-col'));
         // 1 - 9
         if (e.key === "ArrowUp") {
             row -= 1;
@@ -190,7 +300,7 @@ function draw(sudoku) {
         square.classList.remove('square-given');
     });
     for (let i = 0; i < 81; i++) {
-        squares[i].innerText = sudoku[i];
+        squareNums[i].innerText = sudoku[i];
         if (sudoku[i] !== " ") {
             squares[i].classList.add('square-given');
         }
