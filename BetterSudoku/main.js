@@ -3,6 +3,7 @@ const game = document.getElementById('game');
 const progress = document.getElementById('progress');
 let notesMode = false;
 let current = null;
+let isGenerating = false;
 
 // create squares
 const squares = [];
@@ -125,15 +126,7 @@ function updateProgress() {
         });
         if (success) {
             alert('Winner!');
-            let sudoku = generateSudoku(81);
-            for (let i = 0; i < 81; i++) {
-                squareNums[i].innerText = sudoku[i];
-                if (sudoku[i] !== " ") {
-                    squares[i].classList.add('square-given');
-                }
-            }
-            updateProgress();
-            updateWrongs();
+            document.getElementById('reset').click();
         }
     }
 }
@@ -212,6 +205,10 @@ document.getElementById('notes').addEventListener('click', () => {
 });
 
 document.getElementById('reset').addEventListener('click', () => {
+    if (isGenerating) {
+        return;
+    }
+
     squares.forEach(square => {
         square.classList.remove('square-not');
         square.classList.remove('square-selected');
@@ -235,9 +232,11 @@ document.getElementById('reset').addEventListener('click', () => {
     (async () => {
     sudoku = await generateSudoku(Math.floor(81 / 2));
     })();
-    draw(sudoku);
-    updateProgress();
-    updateWrongs();
+    if (sudoku) {
+        draw(sudoku);
+        updateProgress();
+        updateWrongs();
+    }
 });
 
 document.getElementById('clearNotes').addEventListener('click', () => {
@@ -392,6 +391,10 @@ function isSolvable(sudoku) {
 }
 
 async function generateSudoku(givenSquares) {
+    if (isGenerating) {
+        return;
+    }
+    isGenerating = true;
     let sudoku = [];
     let usedDigits = [0, 0, 0, 0, 0, 0, 0, 0, 0];
     for (let i = 0; i < 81; i++) {
@@ -427,7 +430,7 @@ async function generateSudoku(givenSquares) {
             usedDigits[randomDigit - 1]--;
         }
     }
-
+    isGenerating = false;
     return sudoku;
 }
 
