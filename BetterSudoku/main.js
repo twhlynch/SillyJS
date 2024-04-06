@@ -92,7 +92,7 @@ squares.forEach(square => {
             if (square.getAttribute('data-row') == row || square.getAttribute('data-col') == col || square.getAttribute('data-section') == section){
                 square.classList.add('square-not');
             }
-            if (square.innerText == value && value !== " " && value !== "") {
+            if (squareNums[square.getAttribute('data-index')].innerText == value && value !== " " && value !== "") {
                 square.classList.add('square-selected');
             }
         });
