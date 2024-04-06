@@ -294,6 +294,9 @@ document.addEventListener('keydown', (e) => {
 });
 
 function draw(sudoku) {
+    if (!sudoku) {
+        return;
+    }
     // remove given
     squares.forEach(square => {
         square.classList.remove('square-given');
