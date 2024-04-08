@@ -1,7 +1,13 @@
 const game = document.getElementById('game');
+const restartButton = document.getElementById('restart');
+const endText = document.getElementById('endText');
+const endContainer = document.getElementById('end');
+const scoreValue = document.getElementById('scoreValue');
+const highValue = document.getElementById('highValue');
 const squares = [];
 
 function init() {
+    highValue.innerText = localStorage.getItem('high') || 0;
     for (let i = 0; i < 16; i++) {
         const square = document.createElement('div');
         square.classList.add('square');
@@ -16,20 +22,25 @@ function checkState() {
     let lost = true;
     for (let i = 0; i < 16; i++) {
         if (squares[i].innerText === '2048') {
-            alert('You win!');
-            for (let i = 0; i < 16; i++) {
-                squares[i].innerText = '';
-            }
+            endContainer.style.display = 'flex';
+            endText.innerText = 'You won!';
         }
         if (squares[i].innerText === '') {
             lost = false;
         }
     }
     if (lost) {
-        alert('You lost!');
-        for (let i = 0; i < 16; i++) {
-            squares[i].innerText = '';
-        }
+        endContainer.style.display = 'flex';
+        endText.innerText = 'You lost!';
+    }
+}
+
+function updateScore(add) {
+    add = parseInt(add);
+    scoreValue.innerText = parseInt(scoreValue.innerText) + add;
+    if (parseInt(scoreValue.innerText) > parseInt(highValue.innerText)) {
+        highValue.innerText = scoreValue.innerText;
+        localStorage.setItem('high', highValue.innerText);
     }
 }
 
@@ -114,6 +125,7 @@ function moveUp() {
                 } else if (squares[j - 4].innerText === squares[j].innerText) {
                     squares[j - 4].innerText *= 2;
                     squares[j].innerText = '';
+                    updateScore(squares[j - 4].innerText);
                     break;
                 } else {
                     break;
@@ -135,6 +147,7 @@ function moveDown() {
                 } else if (squares[j + 4].innerText === squares[j].innerText) {
                     squares[j + 4].innerText *= 2;
                     squares[j].innerText = '';
+                    updateScore(squares[j + 4].innerText);
                     break;
                 } else {
                     break;
@@ -156,6 +169,7 @@ function moveLeft() {
                 } else if (squares[j - 1].innerText === squares[j].innerText) {
                     squares[j - 1].innerText *= 2;
                     squares[j].innerText = '';
+                    updateScore(squares[j - 1].innerText);
                     break;
                 } else {
                     break;
@@ -177,6 +191,7 @@ function moveRight() {
                 } else if (squares[j + 1].innerText === squares[j].innerText) {
                     squares[j + 1].innerText *= 2;
                     squares[j].innerText = '';
+                    updateScore(squares[j + 1].innerText);
                     break;
                 } else {
                     break;
@@ -211,4 +226,50 @@ document.addEventListener('keydown', (event) => {
             updateStyles();
         }
     }
+});
+
+const start = {x:0,y:0};
+
+document.addEventListener('touchstart', (event) => {
+    start.x = event.clientX;
+    start.y = event.clientY;
+});
+
+document.addEventListener('touchend', (event) => {
+    let x = event.clientX;
+    let y = event.clientY;
+
+    let right = x - start.x;
+    let left = start.x - x;
+    let up = start.y - y;
+    let down = y - start.y;
+
+    console.log(right, left, up, down);
+    currentState = squares.map(square => ":"+square.innerText+":").toString();
+
+    if (right > left && right > up && right > down) {
+        moveRight();
+    } else if (left > right && left > up && left > down) {
+        moveLeft();
+    } else if (up > right && up > left && up > down) {
+        moveUp();
+    } else if (down > right && down > left && down > up) {
+        moveDown();
+    }
+
+    checkState();
+    if (currentState !== squares.map(square => ":"+square.innerText+":").toString()) {
+        addNumber();
+        updateStyles();
+    }
+});
+
+restartButton.addEventListener('click', () => {
+    for (let i = 0; i < 16; i++) {
+        squares[i].innerText = '';
+    }
+    endContainer.style.display = 'none';
+    addNumber();
+    updateStyles();
+    scoreValue.innerText = '0';
 })
