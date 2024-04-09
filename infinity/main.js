@@ -98,11 +98,19 @@ function updateStyles() {
                 const x = Math.log2(parseInt(squares[i].innerText));
                 const c1 = [0, 0, 0];
                 const c2 = [0, 0, 255];
+                const c3 = [255, 0, 0];
 
                 let t = Math.min((x - 11) / 10, 1);
                 let r = c1[0] * (1 - t) + c2[0] * t;
                 let g = c1[1] * (1 - t) + c2[1] * t;
                 let b = c1[2] * (1 - t) + c2[2] * t;
+
+                if (t == 1) {
+                    t = Math.min((x - 21) / 40, 1);
+                    r = c2[0] * (1 - t) + c3[0] * t;
+                    g = c2[1] * (1 - t) + c3[1] * t;
+                    b = c2[2] * (1 - t) + c3[2] * t;
+                }
 
                 squares[i].style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
                 squares[i].style.color = '#fff';
