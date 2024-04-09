@@ -55,7 +55,7 @@ function isColliding(pipe) {
 }
 
 function reset() {
-    // score = 0;
+    score = 0;
     multiplier = 1;
     position = {
         x: renderer.width / 4,
