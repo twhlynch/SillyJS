@@ -6,6 +6,8 @@ const scoreValue = document.getElementById('scoreValue');
 const highValue = document.getElementById('highValue');
 const autoplay = document.getElementById('autoplay');
 const squares = [];
+let isAutoPlaying = false;
+let autoplayInterval = undefined;
 
 function init() {
     highValue.innerText = localStorage.getItem('high') || 0;
@@ -170,6 +172,7 @@ function moveDown() {
         }
     }
 }
+
 function moveLeft() {
     for (let i = 1; i < 100; ++i) {
         if (squares[i].innerText) {
@@ -246,24 +249,32 @@ document.addEventListener('keydown', (event) => {
 });
 
 autoplay.addEventListener('click', () => {
-    setInterval(() => {
-        let currentState = squares.map(square => ":"+square.innerText+":").toString()
-        let direction = Math.floor(Math.random() * 4);
-        if (direction === 0) {
-            moveUp();
-        } else if (direction === 1) {
-            moveDown();
-        } else if (direction === 2) {
-            moveLeft();
-        } else if (direction === 3) {
-            moveRight();
-        }
-        checkState();
-        if (currentState !== squares.map(square => ":"+square.innerText+":").toString()) {
-            addNumber();
-            updateStyles();
-        }
-    }, 10);
+    if (isAutoPlaying) {
+        isAutoPlaying = false;
+        clearInterval(autoplayInterval);
+        autoplay.innerText = 'Autoplay';
+    } else {
+        autoplayInterval = setInterval(() => {
+            let currentState = squares.map(square => ":"+square.innerText+":").toString()
+            let direction = Math.floor(Math.random() * 4);
+            if (direction === 0) {
+                moveUp();
+            } else if (direction === 1) {
+                moveDown();
+            } else if (direction === 2) {
+                moveLeft();
+            } else if (direction === 3) {
+                moveRight();
+            }
+            checkState();
+            if (currentState !== squares.map(square => ":"+square.innerText+":").toString()) {
+                addNumber();
+                updateStyles();
+            }
+        }, 1);
+        isAutoPlaying = true;
+        autoplay.innerText = 'Stop';
+    }
 });
 
 game.addEventListener('click', (event) => {
