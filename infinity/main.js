@@ -226,18 +226,25 @@ init();
 document.addEventListener('keydown', (event) => {
     let moved = false;
     let currentState = squares.map(square => ":"+square.innerText+":").toString()
-    if (event.key === 'ArrowUp') {
+    if (event.key === 'ArrowUp' || event.key === 'w') {
         moveUp();
         moved = true;
-    } else if (event.key === 'ArrowDown') {
+    } else if (event.key === 'ArrowDown' || event.key === 's') {
         moveDown();
         moved = true;
-    } else if (event.key === 'ArrowLeft') {
+    } else if (event.key === 'ArrowLeft' || event.key === 'a') {
         moveLeft();
         moved = true;
-    } else if (event.key === 'ArrowRight') {
+    } else if (event.key === 'ArrowRight' || event.key === 'd') {
         moveRight();
         moved = true;
+    } else if (event.key === '`') {
+        for (let i = 0; i < 100; i++) {
+            if (squares[i].innerText !== '') {
+                squares[i].innerText = squares[i].innerText*2;
+            }
+        }
+        updateStyles();
     }
     if (moved) {
         checkState();
