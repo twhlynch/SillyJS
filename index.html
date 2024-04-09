@@ -28,32 +28,17 @@
         gtag('config', 'G-BDS57RBQ3Q');
     </script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap');
         body {
             margin: 0;
             padding: 0;
-            font-family: sans-serif;
-            background: radial-gradient(
-                105.68% 45.69% at 92.95% 50%,
-                #787ea580 0%,
-                #4ecca318 53.91%,
-                #fed8ff00 100%
-            ),
-            radial-gradient(
-                103.18% 103.18% at 90.11% 102.39%,
-                #787ea5 0%,
-                #e6fffa00 100%
-            ),
-            radial-gradient(
-                90.45% 90.45% at 87.84% 9.55%,
-                #0195f2 0%,
-                #fedbf600 100%
-            ),
-            linear-gradient(
-                135.66deg,
-                #0195f267 14.89%,
-                #4ecca300 74.33%
-            );
-            background-size: cover;
+            font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100svh;
+            
         }
         header {
             display: flex;
@@ -61,19 +46,18 @@
             align-items: center;
             justify-content: center;
             flex-wrap: wrap;
-            height: 70svh;
-        }
-        h1 {
-            margin-top: 15svh;
+            height: 30svh;
         }
         main {
             display: flex;
             flex-direction: row;
             align-items: center;
             justify-content: center;
+            flex-wrap: wrap;
             gap: 0.8em;
-            width: 100vw;
-            height: 20svh;
+            width: 80vw;
+            margin-inline: auto;
+            margin-top: 10svh
         }
         footer {
             display: flex;
@@ -83,6 +67,7 @@
             gap: 0.8em;
             width: 100vw;
             height: 10svh;
+            margin-top: auto;
         }
         a {
             text-decoration: none;
@@ -93,13 +78,36 @@
             color: #000;
             font-weight: bold;
             padding: 0.5em;
-            border: 2px solid #00000048;
-            border-radius: 6px;
-            background-color: #bcbcbc55;
+            border: 2px solid #000;
+            border-radius: 0.5em;
+            width: 200px;
+            height: 40px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            background-size: cover;
         }
-        a:hover {
-            text-decoration: none;
-            color: #033;
+        #btn-TurretSurvival {
+            background-image: url("thumbnails/turretSurvival.png");
+        }
+        #btn-UltimateTag {
+            background-image: url("thumbnails/ultimateTag.png");
+        }
+        #btn-BetterSudoku {
+            background-image: url("thumbnails/sudoku.png");
+        }
+        #btn-2048 {
+            background-image: url("thumbnails/2048.png");
+        }
+        #btn-infinity {
+            background-image: url("thumbnails/infinity.png");
+        }
+        a.game-link:hover {
+            background-color: #000;
+            background-image: none !important;
+            color: #fff;
         }
     </style>
 </head>
@@ -109,14 +117,14 @@
         <p>Silly, goofy perhaps.</p>
     </header>
     <main>
-        <a href="TurretSurvival/" class="game-link">TurretSurvival</a>
-        <a href="UltimateTag/" class="game-link">UltimateTag</a>
-        <a href="BetterSudoku/" class="game-link">Sudoku</a>
-        <a href="2048/" class="game-link">2048</a>
-        <a href="infinity/" class="game-link">Infinity</a>
+        <a href="TurretSurvival/" id="btn-TurretSurvival" class="game-link">Turret Survival</a>
+        <a href="UltimateTag/" id="btn-UltimateTag" class="game-link">Ultimate Tag</a>
+        <a href="BetterSudoku/" id="btn-BetterSudoku" class="game-link">Sudoku</a>
+        <a href="2048/" id="btn-2048" class="game-link">2048</a>
+        <a href="infinity/" id="btn-infinity" class="game-link">Infinity</a>
     </main>
     <footer>
-        <a href="https://github.com/twhlynch/SillyJS">SillyJS</a><b>|</b><a href="https://twhlynch.me">.index</a>
+        <a href="https://github.com/twhlynch/SillyJS">SillyJS</a> • <a href="https://twhlynch.me">.index</a>
     </footer>
 </body>
 </html>

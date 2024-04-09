@@ -10,7 +10,7 @@ let isAutoPlaying = false;
 let autoplayInterval = undefined;
 
 function init() {
-    highValue.innerText = localStorage.getItem('high') || 0;
+    highValue.innerText = localStorage.getItem('highInfinity') || 0;
     for (let i = 0; i < 100; i++) {
         const square = document.createElement('div');
         square.classList.add('square');
@@ -39,7 +39,7 @@ function updateScore(add) {
     scoreValue.innerText = parseInt(scoreValue.innerText) + add;
     if (parseInt(scoreValue.innerText) > parseInt(highValue.innerText)) {
         highValue.innerText = scoreValue.innerText;
-        localStorage.setItem('high', highValue.innerText);
+        localStorage.setItem('highInfinity', highValue.innerText);
     }
 }
 

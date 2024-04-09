@@ -7,7 +7,7 @@ const highValue = document.getElementById('highValue');
 const squares = [];
 
 function init() {
-    highValue.innerText = localStorage.getItem('high') || 0;
+    highValue.innerText = localStorage.getItem('high2048') || 0;
     for (let i = 0; i < 16; i++) {
         const square = document.createElement('div');
         square.classList.add('square');
@@ -40,7 +40,7 @@ function updateScore(add) {
     scoreValue.innerText = parseInt(scoreValue.innerText) + add;
     if (parseInt(scoreValue.innerText) > parseInt(highValue.innerText)) {
         highValue.innerText = scoreValue.innerText;
-        localStorage.setItem('high', highValue.innerText);
+        localStorage.setItem('high2048', highValue.innerText);
     }
 }
 
