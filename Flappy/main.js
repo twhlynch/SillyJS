@@ -76,6 +76,7 @@ function render() {
         if (p.x < 0) {
             p.x = renderer.width + 100;
             p.gapy = Math.random() * (renderer.height - 200) + 100;
+            pipes.used = false;
         }
         if (isColliding(p)) {
             reset();
@@ -90,7 +91,7 @@ function render() {
         reset();
     }
 
-    // move pipes
+    // draw pipes
     pipes.forEach((p) => {
         p.draw();
     });
@@ -110,6 +111,7 @@ function render() {
     speed.x -= 1 * multiplier;
     if (speed.x < 0) {
         speed.x = renderer.width + 100;
+        speed.used = false;
     }
     if (position.x + 10 > speed.x && position.x < speed.x + 10 ||
         position.x < speed.x + 10 && position.x > speed.x) {
