@@ -114,20 +114,22 @@ function addNumber() {
 }
 
 function moveUp() {
-    for (let i = 4; i < 16; i++) {
-        if (squares[i].innerText !== '') {
+    for (let i = 4; i < 16; ++i) {
+        if (squares[i].innerText) {
             let j = i;
             while (j - 4 >= 0) {
-                if (squares[j - 4].innerText === '') {
+                if (!squares[j - 4].innerText) {
                     squares[j - 4].innerText = squares[j].innerText;
                     squares[j].innerText = '';
                     j -= 4;
-                } else if (squares[j - 4].innerText === squares[j].innerText) {
+                }
+                else if (squares[j - 4].innerText === squares[j].innerText) {
                     squares[j - 4].innerText *= 2;
                     squares[j].innerText = '';
                     updateScore(squares[j - 4].innerText);
                     break;
-                } else {
+                }
+                else {
                     break;
                 }
             }
@@ -136,42 +138,45 @@ function moveUp() {
 }
 
 function moveDown() {
-    for (let i = 11; i >= 0; i--) {
-        if (squares[i].innerText !== '') {
+    for (let i = 11; i >= 0; --i) {
+        if (squares[i].innerText) {
             let j = i;
             while (j + 4 < 16) {
-                if (squares[j + 4].innerText === '') {
+                if (!squares[j + 4].innerText) {
                     squares[j + 4].innerText = squares[j].innerText;
                     squares[j].innerText = '';
                     j += 4;
-                } else if (squares[j + 4].innerText === squares[j].innerText) {
+                }
+                else if (squares[j + 4].innerText === squares[j].innerText) {
                     squares[j + 4].innerText *= 2;
                     squares[j].innerText = '';
                     updateScore(squares[j + 4].innerText);
                     break;
-                } else {
+                }
+                else {
                     break;
                 }
             }
         }
     }
 }
-
 function moveLeft() {
-    for (let i = 0; i < 16; i++) {
-        if (squares[i].innerText !== '') {
+    for (let i = 1; i < 16; ++i) {
+        if (squares[i].innerText) {
             let j = i;
-            while (j > 0) {
-                if (squares[j - 1].innerText === '') {
+            while (j % 4 !== 0) {
+                if (!squares[j - 1].innerText) {
                     squares[j - 1].innerText = squares[j].innerText;
                     squares[j].innerText = '';
-                    j -= 1;
-                } else if (squares[j - 1].innerText === squares[j].innerText) {
+                    --j;
+                }
+                else if (squares[j - 1].innerText === squares[j].innerText) {
                     squares[j - 1].innerText *= 2;
                     squares[j].innerText = '';
                     updateScore(squares[j - 1].innerText);
                     break;
-                } else {
+                }
+                else {
                     break;
                 }
             }
@@ -180,20 +185,22 @@ function moveLeft() {
 }
 
 function moveRight() {
-    for (let i = 15; i >= 0; i--) {
-        if (squares[i].innerText !== '') {
+    for (let i = 14; i >= 0; --i) {
+        if (squares[i].innerText) {
             let j = i;
-            while (j < 15) {
-                if (squares[j + 1].innerText === '') {
+            while (j % 4 !== 3) {
+                if (!squares[j + 1].innerText) {
                     squares[j + 1].innerText = squares[j].innerText;
                     squares[j].innerText = '';
-                    j += 1;
-                } else if (squares[j + 1].innerText === squares[j].innerText) {
+                    ++j;
+                }
+                else if (squares[j + 1].innerText === squares[j].innerText) {
                     squares[j + 1].innerText *= 2;
                     squares[j].innerText = '';
                     updateScore(squares[j + 1].innerText);
                     break;
-                } else {
+                }
+                else {
                     break;
                 }
             }
