@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity</title>
+    <script src="main.js" defer></script>
+    <style>
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        #game {
+            width: min(80vw, 80svh);
+            height: min(80vw, 80svh);
+            display: grid;
+            gap: 5px;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            background-color: #bbada0;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100svh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        .square {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+        }
+        #end {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100svh;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #312e2b;
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        #restart {
+            background-color: #312e2b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .scores {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 10px;
+            width: min(80vw, 80svh);
+        }
+        #score, #high {
+            width: calc(calc(min(80vw, 80svh) - 30px) / 4);
+            height: calc(calc(min(80vw, 80svh) - 30px) / 8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 10px;
+            background-color: #bbada0;
+            color: #faf4ed;
+        }
+    </style>
+</head>
+<body>
+    <div id="end">
+        <h1 id="endText">Game Over!</h1>
+        <button id="restart">Restart</button>
+    </div>
+    <div class="scores">
+        <div id="score">Score
+            <span id="scoreValue">0</span>
+        </div>
+        <div id="high">Best
+            <span id="highValue">0</span>
+        </div>
+    </div>
+    <div id="game"></div>
+</body>
+</html>
