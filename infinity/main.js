@@ -4,6 +4,7 @@ const endText = document.getElementById('endText');
 const endContainer = document.getElementById('end');
 const scoreValue = document.getElementById('scoreValue');
 const highValue = document.getElementById('highValue');
+const autoplay = document.getElementById('autoplay');
 const squares = [];
 
 function init() {
@@ -42,7 +43,7 @@ function updateScore(add) {
 
 function updateStyles() {
     for (let i = 0; i < 100; i++) {
-        switch (squares[i].innerText) {
+        switch (squares[i].innerText.trim()) {
             case '2':
                 squares[i].style.backgroundColor = '#eee4da';
                 squares[i].style.color = '#776e65';
@@ -92,8 +93,17 @@ function updateStyles() {
                 squares[i].style.color = '#776e65';
                 break;
             default:
-                squares[i].style.backgroundColor = '#cdc1b4';
-                squares[i].style.color = '#776e65';
+                const x = Math.log2(parseInt(squares[i].innerText));
+                const c1 = [0, 0, 0];
+                const c2 = [0, 0, 255];
+
+                let t = Math.min((x - 11) / 10, 1);
+                let r = c1[0] * (1 - t) + c2[0] * t;
+                let g = c1[1] * (1 - t) + c2[1] * t;
+                let b = c1[2] * (1 - t) + c2[2] * t;
+
+                squares[i].style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+                squares[i].style.color = '#fff';
                 break;
         }
     }
@@ -123,7 +133,7 @@ function moveUp() {
                     squares[j].innerText = '';
                     j -= 10;
                 }
-                else if (squares[j - 10].innerText === squares[j].innerText) {
+                else if (squares[j - 10].innerText.trim() === squares[j].innerText.trim()) {
                     squares[j - 10].innerText *= 2;
                     squares[j].innerText = '';
                     updateScore(squares[j - 10].innerText);
@@ -147,7 +157,7 @@ function moveDown() {
                     squares[j].innerText = '';
                     j += 10;
                 }
-                else if (squares[j + 10].innerText === squares[j].innerText) {
+                else if (squares[j + 10].innerText.trim() === squares[j].innerText.trim()) {
                     squares[j + 10].innerText *= 2;
                     squares[j].innerText = '';
                     updateScore(squares[j + 10].innerText);
@@ -170,7 +180,7 @@ function moveLeft() {
                     squares[j].innerText = '';
                     --j;
                 }
-                else if (squares[j - 1].innerText === squares[j].innerText) {
+                else if (squares[j - 1].innerText.trim() === squares[j].innerText.trim()) {
                     squares[j - 1].innerText *= 2;
                     squares[j].innerText = '';
                     updateScore(squares[j - 1].innerText);
@@ -194,7 +204,7 @@ function moveRight() {
                     squares[j].innerText = '';
                     ++j;
                 }
-                else if (squares[j + 1].innerText === squares[j].innerText) {
+                else if (squares[j + 1].innerText.trim() === squares[j].innerText.trim()) {
                     squares[j + 1].innerText *= 2;
                     squares[j].innerText = '';
                     updateScore(squares[j + 1].innerText);
@@ -235,24 +245,40 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-const start = {x:0,y:0};
-
-document.addEventListener('touchstart', (event) => {
-    start.x = event.clientX;
-    start.y = event.clientY;
+autoplay.addEventListener('click', () => {
+    setInterval(() => {
+        let currentState = squares.map(square => ":"+square.innerText+":").toString()
+        let direction = Math.floor(Math.random() * 4);
+        if (direction === 0) {
+            moveUp();
+        } else if (direction === 1) {
+            moveDown();
+        } else if (direction === 2) {
+            moveLeft();
+        } else if (direction === 3) {
+            moveRight();
+        }
+        checkState();
+        if (currentState !== squares.map(square => ":"+square.innerText+":").toString()) {
+            addNumber();
+            updateStyles();
+        }
+    }, 10);
 });
 
-document.addEventListener('touchend', (event) => {
+game.addEventListener('click', (event) => {
     let x = event.clientX;
     let y = event.clientY;
+    
+    const midX = window.innerWidth / 2;
+    const midY = window.innerHeight / 2;
 
-    let right = x - start.x;
-    let left = start.x - x;
-    let up = start.y - y;
-    let down = y - start.y;
+    const right = x - midX;
+    const left = midX - x;
+    const down = y - midY;
+    const up = midY - y;
 
-    console.log(right, left, up, down);
-    currentState = squares.map(square => ":"+square.innerText+":").toString();
+    let currentState = squares.map(square => ":"+square.innerText+":").toString()
 
     if (right > left && right > up && right > down) {
         moveRight();

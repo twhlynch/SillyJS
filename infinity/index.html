@@ -40,7 +40,7 @@
             width: 100%;
             height: 100%;
             text-align: center;
-            font-size: 2em;
+            font-size: 0.5em;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -70,7 +70,7 @@
             font-weight: bold;
             cursor: pointer;
         }
-        .scores {
+        .scores, .buttons {
             display: flex;
             flex-direction: row;
             align-items: center;
@@ -92,6 +92,21 @@
             background-color: #bbada0;
             color: #faf4ed;
         }
+        #autoplay {
+            width: calc(calc(min(80vw, 80svh) - 30px) / 5);
+            height: calc(calc(min(80vw, 80svh) - 30px) / 12);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 10px;
+            background-color: #bbada0;
+            color: #faf4ed;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -108,5 +123,8 @@
         </div>
     </div>
     <div id="game"></div>
+    <div class="buttons">
+        <button id="autoplay">Autoplay</button>
+    </div>
 </body>
 </html>
