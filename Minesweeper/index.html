@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minesweeper</title>
+    <script src="main.js" defer></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="UI">
+        <button id="flags">F</button>
+        <button id="hint">H</button>
+        <span id="mines">0</span>
+        <button id="menu">*</button>
+        <span id="time">0</span>
+        <button id="settings">=</button>
+        <button id="export">^</button>
+    </div>
+
+    <div id="modal-settings">
+        <input type="color" id="color-primary">
+        <input type="color" id="color-secondary">
+
+        <div class="modal-controls">
+            <button class="modal-close"></button>
+            <button class="modal-confirm"></button>
+            <button id="daily"></button>
+        </div>
+    </div>
+
+    <div id="modal-new">
+        <input type="range" id="set-rows" min="1" max="100" value="16">
+        <input type="range" id="set-cols" min="1" max="100" value="16">
+        <input type="range" id="set-mines" min="1" max="1000" value="40">
+
+        <div class="modal-controls">
+            <button class="modal-close"></button>
+            <button class="modal-confirm"></button>
+            <button id="daily"></button>
+        </div>
+    </div>
+
+    <div id="renderer-container">
+        <div id="renderer"></div>
+    </div>
+</body>
+</html>

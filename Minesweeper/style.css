@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700');
+
+:root {
+    --primary: rgb(160, 160, 160);
+    --secondary: rgb(40, 40, 40);
+    --middle: rgb(90, 90, 90);
+}
+#renderer-container {
+    width: 100vw;
+    height: 100svh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: grid;
+    place-content: center;
+    overflow: scroll;
+}
+body {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    background-color: var(--middle);
+    font-family: Inter, sans-serif;
+}
+* {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+}
+
+/* UI Style */
+
+#UI {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 64px;
+    z-index: 2;
+
+    background-color: var(--primary);
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+
+    font-size: 3em;
+
+    button {
+        width: 52px;
+        height: 52px;
+
+        border: none;
+        background-color: var(--middle);
+        font-size: 0.5em;
+        cursor: pointer;
+    }
+
+    span {
+        width: 200px;
+        height: 52px;
+    }
+}
+
+#modal-settings, #modal-new {
+    display: none;
+}
+
+/* tiles */
+#renderer {
+    display: grid;
+    background-color: var(--secondary);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.tile {
+    box-sizing: border-box;
+    display: grid;
+    place-content: center;
+    font-size: 2em;
+    border-radius: 10px;
+    position: relative;
+}
+/* .isMine {
+    border: 3px solid darkred;
+} */
+.isCleared {
+    background-color: var(--primary);
+}
+/* .isFlagged {
+    border: 3px solid darkblue;
+} */
+.isFlagged::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    content: "✕";
+    color: var(--middle);
+}
