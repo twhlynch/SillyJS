@@ -47,6 +47,8 @@ body {
     gap: 0.5em;
 
     font-size: 3em;
+    padding-inline: 1em;
+    box-sizing: border-box;
 
     button {
         width: 52px;
@@ -56,10 +58,11 @@ body {
         background-color: var(--middle);
         font-size: 0.5em;
         cursor: pointer;
+        border-radius: 10px;
     }
 
     span {
-        width: 200px;
+        flex: 1;
         height: 52px;
     }
 }
