@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <meta name="description" content="Tic Tac Toe Game">
+    <meta name="keywords" content="SillyJS tic Tac Toe game index dotindex twhlynch programming coding website development developer github">
+    <meta name="author" content="twhlynch">
+    <meta property="og:title" content="Tic Tac Toe">
+    <meta property="og:description" content="Tic Tac Toe Game">
+    <meta property="og:site_name" content="Tic Tac Toe">
+    <meta property="og:locale" content="en_us">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://twhlynch.me/SillyJS/TicTacToe">
+    <!-- icon -->
+    <link rel="shortcut icon" href="/favicon.png" type="image/png">
+    <link rel="icon" href="/favicon.ico" type="image/png">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <meta property="og:image" content="http://twhlynch.me/SillyJS/favicon.png">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BDS57RBQ3Q"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-BDS57RBQ3Q');
+    </script>
+    <script src="main.js" defer></script>
+    <style>
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        #game {
+            width: min(80vw, 80svh);
+            height: min(80vw, 80svh);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            border: 2px solid black;
+        }
+        #game.win-o {
+            border-color: #00f;
+            border-width: 10px;
+        }
+        #game.win-x {
+            border-color: #f00;
+            border-width: 10px;
+        }
+        body {
+            background-color: #aaa;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100svh;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: calc(min(80vw, 80svh) / 9);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        .square {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            font-size: 2em;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid black;
+            position: relative;
+        }
+        .square::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            line-height: 0;
+            font-size: 500%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .square-x::after {
+            color: #f00;
+            content: 'x';
+        }
+        .square-o::after {
+            color: #00f;
+            content: 'o';
+        }
+        #reset {
+            top: 20px;
+            left: 20px;
+            position: fixed;
+            background-color: #f00;
+            color: white;
+            width: 60px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #bot {
+            top: 20px;
+            right: 20px;
+            position: fixed;
+            background-color: rgb(27, 142, 69);
+            color: white;
+            width: 60px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="game"></div>
+    <div id="reset">reset</div>
+    <div id="bot">vs AI</div>
+</body>
+</html>
