@@ -1,5 +1,6 @@
 let SIZE = 50;
 let WALLS = SIZE * 10;
+let STEP = 1;
 
 const canvas = document.getElementById('renderer');
 const ctx = canvas.getContext('2d');
@@ -32,12 +33,17 @@ const buttonReset = document.getElementById('reset');
 });
 
 buttonReset.addEventListener('click', () => {
+    SIZE = 50;
     if (document.getElementById('size').value !== "") {
         SIZE = parseInt(document.getElementById('size').value);
     }
     WALLS = SIZE * 10;
     if (document.getElementById('walls').value !== "") {
         WALLS = parseInt(document.getElementById('walls').value);
+    }
+    STEP = 1;
+    if (document.getElementById('step').value !== "") {
+        STEP = parseInt(document.getElementById('step').value);
     }
     init();
 });
@@ -102,12 +108,14 @@ function render() {
         }
     }
 
-    if (currentSearch == "BFS") {
-        console.log(stepBFS());
-    } else if (currentSearch == "DFS") {
-        console.log(stepDFS());
-    } else if (currentSearch == "AStar") {
-        console.log(stepAStar());
+    for (let i = 0; i < STEP; i++) {
+        if (currentSearch == "BFS") {
+            console.log(stepBFS());
+        } else if (currentSearch == "DFS") {
+            console.log(stepDFS());
+        } else if (currentSearch == "AStar") {
+            console.log(stepAStar());
+        }
     }
 
     requestAnimationFrame(render);
