@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search</title>
+    <meta name="description" content="Search algorithms">
+    <meta name="keywords" content="SillyJS search game index dotindex twhlynch programming coding website development developer github">
+    <meta name="author" content="twhlynch">
+    <meta property="og:title" content="Search">
+    <meta property="og:description" content="Search algorithms">
+    <meta property="og:site_name" content="Search">
+    <meta property="og:locale" content="en_us">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://twhlynch.me/SillyJS/Search">
+    <!-- icon -->
+    <link rel="shortcut icon" href="/favicon.png" type="image/png">
+    <link rel="icon" href="/favicon.ico" type="image/png">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <meta property="og:image" content="http://twhlynch.me/SillyJS/favicon.png">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BDS57RBQ3Q"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-BDS57RBQ3Q');
+    </script>
+    <script src="main.js" defer></script>
+    <style>
+        #renderer {
+            width: min(80svw, 80svh);
+            height: min(80svw, 80svh);
+            border: 10px solid rgba(120, 120, 120, 0.267);
+            margin: auto;
+            image-rendering: pixelated;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            justify-content: flex-start;
+            height: 100svh;
+        }
+        #UI {
+            z-index: 100;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: row;
+            gap: 0.5em;
+            padding: 0.5em;
+        }
+        button {
+            padding: 0.2em 0.5em;
+            font-size: 1em;
+            font-weight: bold;
+            background-color: #46cd28;
+            border: none;
+            border-radius: 0.2em;
+            cursor: pointer;
+        }
+        #reset {
+            background-color: #ff2222;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="renderer"></canvas>
+    <div id="UI">
+        <button id="DFS">DFS</button>
+        <button id="BFS">BFS</button>
+        <button id="AStar">A*</button>
+        <button id="reset">reset</button>
+    </div>
+</body>
+</html>
