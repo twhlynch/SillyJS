@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap');
+body {
+	font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+header {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	margin-top: 2em;
+}
+header p, header h1 {
+	margin-bottom: 0;
+}
+footer {
+   text-align: center;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 0.5em;
+	justify-content: center;
+}
+main {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+a.game-link {
+	text-decoration: none;
+	width: 100%;
+	aspect-ratio: 10/1;
+	position: relative;
+	overflow: hidden;
+	transition: aspect-ratio 0.1s linear;
+	border-bottom: 0.5em solid transparent;
+}
+a.game-link:hover {
+	aspect-ratio: 4/1;
+}
+.game-link span {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: start;
+	background-image: linear-gradient(90deg, #000000, #00000080, #00000000, #00000000);
+	color: white;
+	font-size: 2em;
+	font-weight: 600;
+	background-color: #0003;
+	transition: background-color 0.5s;
+	padding-inline: 1em;
+}
+.game-link:hover span {
+	background-color: #fff1;
+}
+.game-link img {
+	position: absolute;
+	z-index: -1;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: top;
+	border-radius: 0.5em;
+}
+#art {
+	z-index: -1;
+	position: fixed;
+	top: 0;
+	right: 0;
+	height: 20svw;
+	color: #fff1;
+	transform: rotate(-45deg);
+	animation: float 10s infinite;
+}
+@keyframes float {
+	0% {
+		transform: rotate(-45deg) translateY(0);
+	}
+	50% {
+		transform: rotate(-45deg) translateY(10px);
+	}
+	100% {
+		transform: rotate(-45deg) translateY(0);
+	}
+}

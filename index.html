@@ -27,142 +27,8 @@
 
         gtag('config', 'G-BDS57RBQ3Q');
     </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap');
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            height: 100svh;
-            
-        }
-        header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        header p, header h1 {
-            margin-bottom: 0;
-        }
-        main {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 0.8em;
-            width: 80vw;
-            margin-inline: auto;
-            margin-top: 10svh;
-            max-width: 800px;
-        }
-        footer {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            gap: 0.8em;
-            width: 100vw;
-            height: 10svh;
-            margin-top: auto;
-        }
-        a {
-            text-decoration: none;
-            color: #000;
-        }
-        a.game-link {
-            text-decoration: none;
-            color: #000;
-            font-weight: bold;
-            padding: 0.5em;
-            border: 2px solid #000;
-            border-radius: 0.5em;
-            width: 200px;
-            height: 40px;
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            transition: all 0.2s ease-in-out;
-            cursor: pointer;
-            background-size: cover;
-            background-color: #000;
-        }
-        #btn-TurretSurvival {
-            background-image: url("thumbnails/turretSurvival.png");
-        }
-        #btn-UltimateTag {
-            background-image: url("thumbnails/ultimateTag.png");
-        }
-        #btn-BetterSudoku {
-            background-image: url("thumbnails/sudoku.png");
-        }
-        #btn-2048 {
-            background-image: url("thumbnails/2048.png");
-        }
-        #btn-Infinity {
-            background-image: url("thumbnails/infinity.png");
-        }
-        #btn-Wordle {
-            background-image: url("thumbnails/wordle.png");
-        }
-        #btn-Flappy {
-            background-image: url("thumbnails/flappy.png");
-        }
-        #btn-Wave {
-            background-image: url("thumbnails/wave.png");
-        }
-        #btn-Life {
-            background-image: url("thumbnails/life.png"); 
-        }
-        #btn-MergeChickens {
-            background-image: url("thumbnails/mergeChickens.png");
-        }
-        #btn-Minesweeper {
-            background-image: url("thumbnails/minesweeper.png");
-        }
-        #btn-AdGame {
-            background-image: url("thumbnails/adGame.png");
-        }
-        #btn-Peggle {
-            background-image: url("thumbnails/peggle.png");
-        }
-        #btn-TicTacToe {
-            background-image: url("thumbnails/ticTacToe.png");
-        }
-        #btn-Search {
-            background-image: url("thumbnails/search.png");
-        }
-        a.game-link:hover {
-            background-blend-mode: darken;
-            color: #fff;
-        }
-        #art {
-            z-index: -1;
-            position: fixed;
-            top: 0;
-            left: 40vw;
-            height: max(100vw, 100svh);
-            color: #00000005;
-            transform: rotate(-45deg);
-            animation: float 10s infinite;
-        }
-        @keyframes float {
-            0% {
-                transform: rotate(-45deg) translateY(0);
-            }
-            50% {
-                transform: rotate(-45deg) translateY(10px);
-            }
-            100% {
-                transform: rotate(-45deg) translateY(0);
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="https://twhlynch.me/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <svg id="art" xmlns="http://www.w3.org/2000/svg" viewBox="206.724 121 55.7 95.82">
@@ -173,21 +39,66 @@
         <p>Silly, goofy perhaps.</p>
     </header>
     <main>
-        <a href="TurretSurvival/" id="btn-TurretSurvival" class="game-link">Turret Survival</a>
-        <a href="UltimateTag/" id="btn-UltimateTag" class="game-link">Ultimate Tag</a>
-        <a href="BetterSudoku/" id="btn-BetterSudoku" class="game-link">Sudoku</a>
-        <a href="2048/" id="btn-2048" class="game-link">2048</a>
-        <a href="Infinity/" id="btn-Infinity" class="game-link">Infinity</a>
-        <a href="Wordle/" id="btn-Wordle" class="game-link">Wordle</a>
-        <a href="Flappy/" id="btn-Flappy" class="game-link">Flappy</a>
-        <a href="Wave/" id="btn-Wave" class="game-link">Wave</a>
-        <a href="Life/" id="btn-Life" class="game-link">Life</a>
-        <a href="MergeChickens/" id="btn-MergeChickens" class="game-link">Merge Chickens</a>
-        <a href="Minesweeper/" id="btn-Minesweeper" class="game-link">Minesweeper</a>
-        <a href="AdGame/" id="btn-AdGame" class="game-link">Ad Game</a>
-        <a href="Peggle/" id="btn-Peggle" class="game-link">Peggle</a>
-        <a href="TicTacToe/" id="btn-TicTacToe" class="game-link">Tic-Tac-Toe</a>
-        <a href="Search/" id="btn-Search" class="game-link">Search</a>
+        <a href="TurretSurvival/" class="game-link">
+            <span>Turret Survival</span>
+            <img src="thumbnails/turretSurvival.png" alt="">
+        </a>
+        <a href="UltimateTag/" class="game-link">
+            <span>Ultimate Tag</span>
+            <img src="thumbnails/ultimateTag.png" alt="">
+        </a>
+        <a href="BetterSudoku/" class="game-link">
+            <span>Sudoku</span>
+            <img src="thumbnails/sudoku.png" alt="">
+        </a>
+        <a href="2048/" class="game-link">
+            <span>2048</span>
+            <img src="thumbnails/2048.png" alt="">
+        </a>
+        <a href="Infinity/" class="game-link">
+            <span>Infinity</span>
+            <img src="thumbnails/infinity.png" alt="">
+        </a>
+        <a href="Wordle/" class="game-link">
+            <span>Wordle</span>
+            <img src="thumbnails/wordle.png" alt="">
+        </a>
+        <a href="Flappy/" class="game-link">
+            <span>Flappy</span>
+            <img src="thumbnails/flappy.png" alt="">
+        </a>
+        <a href="Wave/" class="game-link">
+            <span>Wave</span>
+            <img src="thumbnails/wave.png" alt="">
+        </a>
+        <a href="Life/" class="game-link">
+            <span>Life</span>
+            <img src="thumbnails/life.png" alt="">
+        </a>
+        <a href="MergeChickens/" class="game-link">
+            <span>Merge Chickens</span>
+            <img src="thumbnails/mergeChickens.png" alt="">
+        </a>
+        <a href="Minesweeper/" class="game-link">
+            <span>Minesweeper</span>
+            <img src="thumbnails/minesweeper.png" alt="">
+        </a>
+        <a href="AdGame/" class="game-link">
+            <span>Ad Game</span>
+            <img src="thumbnails/adGame.png" alt="">
+        </a>
+        <a href="Peggle/" class="game-link">
+            <span>Peggle</span>
+            <img src="thumbnails/peggle.png" alt="">
+        </a>
+        <a href="TicTacToe/" class="game-link">
+            <span>Tic-Tac-Toe</span>
+            <img src="thumbnails/ticTacToe.png" alt="">
+        </a>
+        <a href="Search/" class="game-link">
+            <span>Search</span>
+            <img src="thumbnails/search.png" alt="">
+        </a>
     </main>
     <footer>
         <a href="https://github.com/twhlynch/SillyJS">SillyJS</a> • <a href="https://twhlynch.me">.index</a>
