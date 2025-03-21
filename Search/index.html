@@ -68,6 +68,17 @@
         #reset {
             background-color: #ff2222;
         }
+        input {
+            padding: 0.2em 0.5em;
+            font-size: 1em;
+            background-color: #ffffff;
+            border: 2px solid #000;
+            border-radius: 0.2em;
+            width: 5em;
+        }
+        #walls {
+            width: 9em;
+        }
     </style>
 </head>
 <body>
@@ -77,6 +88,8 @@
         <button id="BFS">BFS</button>
         <button id="AStar">A*</button>
         <button id="reset">reset</button>
+        <input type="number" id="size" placeholder="size (50)">
+        <input type="number" id="walls" placeholder="walls (size &times; 10)">
     </div>
 </body>
 </html>

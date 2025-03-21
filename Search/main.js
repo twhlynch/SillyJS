@@ -1,6 +1,7 @@
+let SIZE = 50;
+let WALLS = SIZE * 10;
+
 const canvas = document.getElementById('renderer');
-canvas.width = 50;
-canvas.height = 50;
 const ctx = canvas.getContext('2d');
 
 let grid = [];
@@ -31,29 +32,38 @@ const buttonReset = document.getElementById('reset');
 });
 
 buttonReset.addEventListener('click', () => {
+    if (document.getElementById('size').value !== "") {
+        SIZE = parseInt(document.getElementById('size').value);
+    }
+    WALLS = SIZE * 10;
+    if (document.getElementById('walls').value !== "") {
+        WALLS = parseInt(document.getElementById('walls').value);
+    }
     init();
 });
 
 // for init or reset
 function init() {
+    canvas.width = SIZE;
+    canvas.height = SIZE;
     currentSearch = "none";
     state = {};
     grid = [];
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < SIZE; i++) {
         grid.push([]);
-        for (let j = 0; j < 50; j++) {
+        for (let j = 0; j < SIZE; j++) {
             grid[i].push(0);
         }
     }
-    let objectivex = Math.floor(Math.random() * 50);
-    let objectivey = Math.floor(Math.random() * 50);
+    let objectivex = Math.floor(Math.random() * SIZE);
+    let objectivey = Math.floor(Math.random() * SIZE);
     grid[objectivex][objectivey] = 9;
-    let startx = Math.floor(Math.random() * 50);
-    let starty = Math.floor(Math.random() * 50);
+    let startx = Math.floor(Math.random() * SIZE);
+    let starty = Math.floor(Math.random() * SIZE);
     grid[startx][starty] = 1;
-    for (let i = 0; i < 500; i++) {
-        let x = Math.floor(Math.random() * 50);
-        let y = Math.floor(Math.random() * 50);
+    for (let i = 0; i < WALLS; i++) {
+        let x = Math.floor(Math.random() * SIZE);
+        let y = Math.floor(Math.random() * SIZE);
         if(grid[x][y] == 0)grid[x][y] = 8;
     }
 }
@@ -64,8 +74,8 @@ function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // draw grid
-    for (let i = 0; i < 50; i++) {
-        for (let j = 0; j < 50; j++) {
+    for (let i = 0; i < SIZE; i++) {
+        for (let j = 0; j < SIZE; j++) {
             switch (grid[i][j]) {
                 case 0:
                     ctx.fillStyle = '#fff';
@@ -115,10 +125,10 @@ function getNeighbors(node) {
     if (node[1] > 0 && grid[node[0]][node[1] - 1] != 8) {
         neighbors.push([node[0], node[1] - 1]);
     }
-    if (node[0] < 49 && grid[node[0] + 1][node[1]] != 8) {
+    if (node[0] < SIZE - 1 && grid[node[0] + 1][node[1]] != 8) {
         neighbors.push([node[0] + 1, node[1]]);
     }
-    if (node[1] < 49 && grid[node[0]][node[1] + 1] != 8) {
+    if (node[1] < SIZE - 1 && grid[node[0]][node[1] + 1] != 8) {
         neighbors.push([node[0], node[1] + 1]);
     }
     return neighbors;
@@ -129,8 +139,8 @@ function stepBFS() {
     if (!state.queue) {
         state.queue = [];
         // find start
-        for (let i = 0; i < 50; i++) {
-            for (let j = 0; j < 50; j++) {
+        for (let i = 0; i < SIZE; i++) {
+            for (let j = 0; j < SIZE; j++) {
                 if (grid[i][j] == 1) {
                     state.queue.push([i, j]);
                 }
@@ -164,8 +174,8 @@ function stepDFS() {
     if (!state.stack) {
         state.stack = [];
         // find start
-        for (let i = 0; i < 50; i++) {
-            for (let j = 0; j < 50; j++) {
+        for (let i = 0; i < SIZE; i++) {
+            for (let j = 0; j < SIZE; j++) {
                 if (grid[i][j] == 1) {
                     state.stack.push([i, j]);
                 }
@@ -203,8 +213,8 @@ function stepAStar() {
         state.gScore = {};
         state.fScore = {};
         // find start
-        for (let i = 0; i < 50; i++) {
-            for (let j = 0; j < 50; j++) {
+        for (let i = 0; i < SIZE; i++) {
+            for (let j = 0; j < SIZE; j++) {
                 if (grid[i][j] == 1) {
                     state.start = [i, j];
                     state.openSet.push(state.start);
@@ -242,8 +252,8 @@ function stepAStar() {
 
 function heuristic(node) {
     let objective;
-    for (let i = 0; i < 50; i++) {
-        for (let j = 0; j < 50; j++) {
+    for (let i = 0; i < SIZE; i++) {
+        for (let j = 0; j < SIZE; j++) {
             if (grid[i][j] == 9) {
                 objective = [i, j];
                 break;
@@ -251,7 +261,7 @@ function heuristic(node) {
         }
     }
     let distance = Math.abs(node[0] - objective[0]) + Math.abs(node[1] - objective[1]);
-    let maxDistance = 50;
+    let maxDistance = SIZE;
     let blueValue = Math.floor((distance / maxDistance) * 155 + 100);
     if (grid[node[0]][node[1]] != 1 && grid[node[0]][node[1]] != 9) grid[node[0]][node[1]] = `rgb(0, 0, ${blueValue})`;
     return distance;
