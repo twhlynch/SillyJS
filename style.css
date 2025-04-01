@@ -44,7 +44,7 @@ a.game-link:hover {
 	display: flex;
 	align-items: center;
 	justify-content: start;
-	background-image: linear-gradient(90deg, #000000, #00000080, #00000000, #00000000);
+	background-image: linear-gradient(90deg, var(--c-bg), #00000080, #00000000, #00000000);
 	color: white;
 	font-size: 2em;
 	font-weight: 600;
