@@ -7,6 +7,7 @@ const COLORS = {
     perception: '#0c0',
     range: '#90f',
 };
+let detectedDelta = undefined;
 
 const canvas = document.getElementById('renderer');
 const ctx = canvas.getContext('2d');
@@ -55,7 +56,7 @@ class Bird extends Entity {
     constructor(parent = undefined) {
         super();
         this.generation = 1;
-        this.foodDelay = 1;
+        this.foodDelay = 0;
         this.velocity = new Vec2(0, 0);
         this.statistics = {
             maxSpeed: 1, // max speed mult
@@ -85,7 +86,7 @@ class Bird extends Entity {
         this.color = COLORS[bestStat];
         this.target = undefined;
     }
-    update() {
+    update(delta) {
         if (!this.target || this.target.dead) this.target = this.findFood();
 
         this.position.x += this.velocity.x;
@@ -98,6 +99,7 @@ class Bird extends Entity {
         else if (this.position.y > canvas.height + this.scale) this.velocity.y = -this.statistics.speed;
 
         this.stamina -= 0.003 * Math.max(this.statistics.speed, this.statistics.maxSpeed);
+        if (delta / detectedDelta > 1.5) this.stamina -= (delta / detectedDelta - 1.5) * this.stamina;
         if (this.stamina <= 0) {
             birds = birds.filter((bird) => bird != this);
         }
@@ -128,6 +130,7 @@ class Bird extends Entity {
         if (foodDistance <= Math.min(3, this.statistics.range) * this.scale + this.target.scale && Math.abs(foodAngle - angle) < 1) {
             this.stamina = this.statistics.stamina;
             this.target.dead = true;
+            this.foodDelay = 1;
             food = food.filter((food) => food != this.target);
             this.target = undefined;
             food.push(new Food());
@@ -259,12 +262,14 @@ let lastFrameTime = 0;
 let frameRate = [];
 function render(timestamp) {
     // if (timestamp - lastFrameTime >= 1000 / 120) {
-    frameRate.push(1000 / (timestamp - lastFrameTime));
+    const delta = timestamp - lastFrameTime;
+    frameRate.push(1000 / delta);
     frameRate = frameRate.slice(-100);
     lastFrameTime = timestamp;
+    if (frameRate.length == 100 && !detectedDelta) detectedDelta = delta;
     draw();
     for (let i = 0; i < 1; i++) {
-        update();
+        update(delta);
     }
     // }
     requestAnimationFrame(render);
@@ -311,10 +316,10 @@ document.addEventListener('keydown', (event) => {
         debug = !debug;
     }
 });
-function update() {
+function update(delta) {
     if (paused) return;
     birds.forEach((bird) => {
-        if(bird) bird.update()
+        if(bird) bird.update(delta)
     });
     food.forEach((food) => {
         if(food) food.update()
