@@ -321,6 +321,12 @@ document.addEventListener('keydown', (event) => {
 document.getElementById('debug').addEventListener('click', () => {
     debug = !debug;
 });
+document.getElementById('renderer').addEventListener('click', (e) => {
+    let bird = new Bird();
+    birds.push(bird);
+    bird.position.x = e.clientX * 2;
+    bird.position.y = e.clientY * 2;
+});
 function update(delta) {
     if (paused) return;
     birds.forEach((bird) => {
