@@ -267,7 +267,7 @@ function render(timestamp) {
     frameRate = frameRate.slice(-100);
     lastFrameTime = timestamp;
     if (frameRate.length == 100 && !detectedDelta) detectedDelta = delta;
-    draw();
+    draw(delta);
     for (let i = 0; i < 1; i++) {
         update(delta);
     }
@@ -275,7 +275,7 @@ function render(timestamp) {
     requestAnimationFrame(render);
     // render();
 }
-function draw() {
+function draw(delta) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // game
@@ -289,7 +289,9 @@ function draw() {
     // ui
     ctx.fillStyle = '#000';
     ctx.font = '20px Arial';
+    if (delta / detectedDelta > 1.5) ctx.fillStyle = '#f00';
     ctx.fillText(`FPS: ${Math.floor(frameRate.reduce((a, f) => a + f, 0) / frameRate.length)}`, 10, 30);
+    ctx.fillStyle = '#000';
     ctx.fillText(`Birds: ${birds.length}`, 10, 60);
     ctx.fillText(`Avg Generation: ${
         Math.floor(birds.reduce((a, b) => a + b.generation, 0) / birds.length)
