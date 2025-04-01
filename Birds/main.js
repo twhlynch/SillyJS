@@ -318,6 +318,9 @@ document.addEventListener('keydown', (event) => {
         debug = !debug;
     }
 });
+document.getElementById('debug').addEventListener('click', () => {
+    debug = !debug;
+});
 function update(delta) {
     if (paused) return;
     birds.forEach((bird) => {

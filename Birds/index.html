@@ -43,9 +43,25 @@
             justify-content: flex-start;
             height: 100svh;
         }
+        #debug {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            padding: 2px 4px;
+            background-color: #0005;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            border: none;
+            outline: none;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
     <canvas id="renderer"></canvas>
+    <button id="debug">
+        Debug
+    </button>
 </body>
 </html>
