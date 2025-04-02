@@ -111,8 +111,8 @@ class Bird extends Entity {
         const foodDistance = this.position.distance(this.target.position);
         const angleDiff = Math.abs(foodAngle - angle);
 
-        let nx = this.velocity.x + (Math.cos(foodAngle) * this.statistics.turn * this.statistics.speed) / (angleDiff * Math.PI * Math.max(this.statistics.speed, this.statistics.maxSpeed));
-        let ny = this.velocity.y + (Math.sin(foodAngle) * this.statistics.turn * this.statistics.speed) / (angleDiff * Math.PI * Math.max(this.statistics.speed, this.statistics.maxSpeed));
+        let nx = this.velocity.x / this.statistics.range + (Math.cos(foodAngle) * this.statistics.turn * this.statistics.speed) / (angleDiff * Math.PI * Math.max(this.statistics.speed, this.statistics.maxSpeed));
+        let ny = this.velocity.y / this.statistics.range + (Math.sin(foodAngle) * this.statistics.turn * this.statistics.speed) / (angleDiff * Math.PI * Math.max(this.statistics.speed, this.statistics.maxSpeed));
         const maxSpeedMult = 3;
         if (nx > this.statistics.maxSpeed * maxSpeedMult) {
             nx = this.statistics.maxSpeed * maxSpeedMult;
@@ -138,18 +138,33 @@ class Bird extends Entity {
         }
     }
     draw() {
-        ctx.fillStyle = '#ccc';
+        ctx.fillStyle = '#cdc';
         ctx.beginPath();
         ctx.ellipse(
             this.position.x,
             this.position.y,
-            (this.scale * Math.min(5, this.statistics.range)) / 2,
-            (this.scale * Math.min(5, this.statistics.range)) / 2,
+            (this.scale * Math.min(3, this.statistics.range)) / 2,
+            (this.scale * Math.min(3, this.statistics.range)) / 2,
             0,
             0,
             2 * Math.PI
         );
         ctx.fill();
+
+        if (debug) {
+            ctx.strokeStyle = '#eef';
+            ctx.beginPath();
+            ctx.ellipse(
+                this.position.x,
+                this.position.y,
+                ((this.statistics.perception / this.statistics.range) / this.statistics.range) * Math.min(canvas.width, canvas.height) / 4,
+                ((this.statistics.perception / this.statistics.range) / this.statistics.range) * Math.min(canvas.width, canvas.height) / 4,
+                0,
+                0,
+                2 * Math.PI
+            );
+            ctx.stroke();
+        }
 
         const angle = Math.atan2(this.velocity.y, this.velocity.x);
         ctx.save();
@@ -216,9 +231,9 @@ class Bird extends Entity {
             return undefined;
         }
         let closest = undefined;
-        let closestDistance = this.statistics.perception * Math.min(canvas.width, canvas.height) / 2;
+        let closestDistance = ((this.statistics.perception / this.statistics.range) / this.statistics.range) * Math.min(canvas.width, canvas.height) / 4;
         food.forEach((food) => {
-            if (Math.random() > this.statistics.perception / frameRate) return;
+            if (Math.random() > (this.statistics.perception * this.statistics.range * this.statistics.speed) / frameRate) return;
             const distance = this.position.distance(food.position);
             if (distance < closestDistance) {
                 closestDistance = distance;
