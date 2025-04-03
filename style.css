@@ -51,9 +51,19 @@ a.game-link:hover {
 	background-color: #0003;
 	transition: background-color 0.5s;
 	padding-inline: 1em;
+	position: relative;
 }
 .game-link:hover span {
 	background-color: #fff1;
+}
+.game-link.external::after {
+	content: "external";
+	color: #fff4;
+	font-size: 0.8rem;
+	position: absolute;
+	left: -10px;
+	top: 50%;
+	transform: translateY(-50%) rotate(-90deg);
 }
 .game-link img {
 	position: absolute;
