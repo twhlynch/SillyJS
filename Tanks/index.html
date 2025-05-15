@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tanks</title>
+    <meta name="description" content="Tanks">
+    <meta name="keywords" content="SillyJS tanks game index dotindex twhlynch programming coding website development developer github">
+    <meta name="author" content="twhlynch">
+    <meta property="og:title" content="Tanks">
+    <meta property="og:description" content="Tanks">
+    <meta property="og:site_name" content="Tanks">
+    <meta property="og:locale" content="en_us">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://twhlynch.me/SillyJS/Tanks">
+    <!-- icon -->
+    <link rel="shortcut icon" href="/favicon.png" type="image/png">
+    <link rel="icon" href="/favicon.ico" type="image/png">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <meta property="og:image" content="http://twhlynch.me/SillyJS/favicon.png">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BDS57RBQ3Q"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-BDS57RBQ3Q');
+    </script>
+    <script src="main.js" defer></script>
+    <style>
+        #renderer {
+            width: 100vw;
+            height: 100svh;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+        }
+        #fps {
+            padding: 5px;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        #xp {
+            padding: 5px;
+            position: fixed;
+            top: 20px;
+            left: 0;
+        }
+        #level {
+            padding: 5px;
+            position: fixed;
+            top: 40px;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="renderer"></canvas>
+    <span id="fps">fps: 0</span>
+    <span id="xp">xp: 0</span>
+    <span id="level">level: 1</span>
+</body>
+</html>
